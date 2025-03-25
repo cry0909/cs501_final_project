@@ -36,7 +36,7 @@ A mobile health and wellness app that links your real-life habits to the well-be
 | UI              | Jetpack Compose + Material Design         |
 | Database        | Firebase (Auth + Sync) + Room (Local)     |
 | Health API      | Android Health Connect                    |
-| Sensors         | GPS, Accelerometer, Camera (ARCore)       |
+| Sensors         | GPS, Accelerometer     |
 | Testing Devices | Phone + smartwatch                        |
 
 ---
@@ -54,7 +54,7 @@ A mobile health and wellness app that links your real-life habits to the well-be
 | Week of Mar 16 | Proposal + GitHub setup + wireframes                      |
 | Mar 31         | Room/Firebase DB, basic Compose UI                        |
 | Apr 13         | Health Connect integration, dual device testing           |
-| Apr 27         | Sensors + ARCore + animations                             |
+| Apr 27         | Sensors + animations                             |
 | May 4          | Final version, polish, presentation & report              |
 
 ---
