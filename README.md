@@ -19,7 +19,6 @@ A mobile health and wellness app that links your real-life habits to the well-be
 - 📍 **Sensor Integration**:
   - GPS: Location-based walking logs.
   - Accelerometer: Motion detection.
-  - Camera: AR pet rendering (Google ARCore).
 - 🌙 **Sleep Affects Pet Mood**: Poor sleep? Your pet will be sluggish too!
 - 🧭 **Multi-Device Support**: 
   - Phone: Full experience.
@@ -61,30 +60,9 @@ A mobile health and wellness app that links your real-life habits to the well-be
 
 ---
 
-## 🧪 Testing & Feedback
-
-- ✅ Tested on Pixel 6 and Galaxy Watch 5
-- ✅ Responsive layouts and animations
-- ✅ Accessible design options
-- 🧪 In-progress: user testing for engagement & improvements
-
----
-
 ## 🙋‍♀️ Authors
 
-- [Your Name] – Android Dev & UI/UX Lead  
-- [Teammate’s Name] – Health API Integration & Sensor Features
+- Chaojen Chiu ， Ruiyang Cao  
 
 ---
 
-## 📄 License
-
-This project is for educational purposes as part of **CS 501 – Mobile Application Development, Spring 2025** at [Your University].
-
----
-
-## 💡 Future Enhancements
-
-- Community competitions (e.g., leaderboard of healthiest pets)  
-- More pet types (cat, dragon, etc.)  
-- iOS version with cross-platform pet sync  
