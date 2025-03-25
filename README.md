@@ -37,8 +37,7 @@ A mobile health and wellness app that links your real-life habits to the well-be
 | Database        | Firebase (Auth + Sync) + Room (Local)     |
 | Health API      | Android Health Connect                    |
 | Sensors         | GPS, Accelerometer, Camera (ARCore)       |
-| AR              | Google ARCore                             |
-| Testing Devices | Phone + Smartwatch                        |
+| Testing Devices | Phone + smartwatch                        |
 
 ---
 
