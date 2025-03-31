@@ -1,5 +1,5 @@
 # cs501_final_project
-# 🐾 Virtual Pet Health Companion
+# 🐾WelliPet (Virtual Pet Health Companion)
 
 A mobile health and wellness app that links your real-life habits to the well-being of a virtual pet. Stay healthy, stay happy — for you and your companion!
 
@@ -7,7 +7,7 @@ A mobile health and wellness app that links your real-life habits to the well-be
 
 ## 📱 Overview
 
-**Virtual Pet Health Companion** is an Android app that gamifies health tracking through emotional connection. By integrating your fitness, sleep, and hydration data with a virtual pet, the app encourages healthy behavior through positive reinforcement, daily challenges, and interactive rewards. Built with Kotlin, Jetpack Compose, and Android Health Connect, the app offers a playful and meaningful approach to wellness.
+**WelliPet** is an Android app that gamifies health tracking through emotional connection. By integrating your fitness, sleep, and hydration data with a virtual pet, the app encourages healthy behavior through positive reinforcement, daily challenges, and interactive rewards. Built with Kotlin, Jetpack Compose, and Android Health Connect, the app offers a playful and meaningful approach to wellness.
 
 ---
 
@@ -52,7 +52,7 @@ A mobile health and wellness app that links your real-life habits to the well-be
 | Milestone      | Features Implemented                                      |
 |----------------|------------------------------------------------------------|
 | Week of Mar 16 | Proposal + GitHub setup + wireframes                      |
-| Mar 31         | Room/Firebase DB, basic Compose UI                        |
+| Mar 31         | Firebase DB, basic Compose UI                        |
 | Apr 13         | Health Connect integration, dual device testing           |
 | Apr 27         | Sensors + animations                             |
 | May 4          | Final version, polish, presentation & report              |
