@@ -59,6 +59,59 @@ A mobile health and wellness app that links your real-life habits to the well-be
 
 ---
 
+## 📦 Project Structure
+com.example.wellipet
+├── data
+│   ├── model
+│   │   ├── HealthData.kt         // Data model for health metrics (e.g., steps, sleep, hydration)
+│   │   ├── PetStatus.kt          // Data model for pet status (e.g., mood, health progress)
+│   │   └── User.kt               // Data model for user-related info
+│   ├── repository
+│   │   ├── HealthRepository.kt   // Handles Health Connect integration and local data access
+│   │   ├── PetRepository.kt      // Manages pet state updates and logic
+│   │   └── UserRepository.kt     // Handles user login, signup, and authentication (optional backend)
+│   └── source
+│       └── HealthConnectSource.kt// Direct communication with Health Connect
+│
+├── domain
+│   └── usecase
+│       ├── GetHealthDataUseCase.kt   // Business logic to fetch health data
+│       ├── UpdatePetStatusUseCase.kt // Business logic to update pet status
+│       └── UserAuthUseCase.kt        // Logic for handling login/signup flows
+│
+├── ui
+│   ├── mobile
+│   │   ├── home
+│   │   │   ├── HomeScreen.kt         // Main screen (pet display, background, progress)
+│   │   │   └── HomeViewModel.kt
+│   │   ├── login
+│   │   │   ├── LoginScreen.kt        // Login UI
+│   │   │   └── LoginViewModel.kt
+│   │   ├── signup
+│   │   │   ├── SignUpScreen.kt       // Signup UI
+│   │   │   └── SignUpViewModel.kt
+│   │   ├── healthdata
+│   │   │   ├── HealthDataScreen.kt   // Health data UI (lists and charts)
+│   │   │   └── HealthDataViewModel.kt
+│   │   └── store
+│   │       ├── StoreScreen.kt        // Pet item store UI
+│   │       └── StoreViewModel.kt
+│   └── wear
+│       ├── home
+│       │   ├── WearHomeScreen.kt         // Simplified home UI for wearable
+│       │   └── WearHomeViewModel.kt
+│       └── healthdata
+│           ├── WearHealthDataScreen.kt  // Simplified health data UI for wearable
+│           └── WearHealthDataViewModel.kt
+│
+├── navigation
+│   └── AppNavHost.kt               // Navigation graph and routing
+│
+└── utils
+├── Extensions.kt               // Shared extension and utility functions
+└── Constants.kt                // Constant definitions (e.g., keys, API URLs)
+
+
 ## 🙋‍♀️ Authors
 
 - Chaojen Chiu ， Ruiyang Cao  
