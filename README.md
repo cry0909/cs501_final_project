@@ -60,6 +60,8 @@ A mobile health and wellness app that links your real-life habits to the well-be
 ---
 
 ## 📦 Project Structure
+
+```
 com.example.wellipet
 ├── data
 │   ├── model
@@ -110,6 +112,8 @@ com.example.wellipet
 └── utils
 ├── Extensions.kt               // Shared extension and utility functions
 └── Constants.kt                // Constant definitions (e.g., keys, API URLs)
+
+```
 
 
 ## 🙋‍♀️ Authors
