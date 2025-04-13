@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.example.wellipet.ui.mobile.login.LoginScreen
-import com.example.wellipet.ui.mobile.signup.SignUpScreen
+import com.example.wellipet.ui.auth.LoginScreen
+import com.example.wellipet.ui.auth.SignUpScreen
 import com.example.wellipet.ui.mobile.home.HomeScreen
 import com.example.wellipet.ui.mobile.healthdata.HealthDataScreen
 import com.example.wellipet.ui.mobile.store.StoreScreen

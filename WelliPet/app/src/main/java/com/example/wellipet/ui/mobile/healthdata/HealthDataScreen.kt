@@ -2,30 +2,72 @@
 package com.example.wellipet.ui.mobile.healthdata
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import com.example.wellipet.data.repository.HealthRepository
-import kotlinx.coroutines.launch
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+//import com.example.wellipet.ui.components.StepsLineChart
+import com.example.wellipet.data.model.StepCount
+
+// Placeholder for line chart (Steps)
+@Composable
+fun StepsLineChartPlaceholder(data: List<Pair<String, Long>>) {
+    // 實際應用中可使用 Compose chart library 或 MPAndroidChart 轉換為 Compose
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Steps History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
+        data.forEach { (date, steps) ->
+            Text("$date: $steps steps")
+        }
+    }
+}
+
+// Placeholder for bar chart (Sleep)
+@Composable
+fun SleepBarChartPlaceholder(data: List<Pair<String, Long>>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Sleep History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
+        data.forEach { (date, seconds) ->
+            Text("$date: ${formatSleepDuration(seconds)}")
+        }
+    }
+}
+
+// Placeholder for bar chart (Hydration)
+@Composable
+fun HydrationBarChartPlaceholder(data: List<Pair<String, Long>>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Hydration History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
+        data.forEach { (date, ml) ->
+            Text("$date: $ml ml")
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthDataScreen(onBackClick: () -> Unit) {
-    val context = LocalContext.current
-    // HealthRepository 需要 context，所以傳入 LocalContext.current
-    val healthRepository = HealthRepository(context)
-    var steps by remember { mutableStateOf(0L) }
-    val coroutineScope = rememberCoroutineScope()
+    val healthDataViewModel: HealthDataViewModel = viewModel()
+    val currentSteps by healthDataViewModel.currentSensorSteps.collectAsState()
+    val currentSleepSeconds by healthDataViewModel.currentSleep.collectAsState()
+    val currentHydration by healthDataViewModel.currentHydration.collectAsState()
+    val formattedSleep = formatSleepDuration(currentSleepSeconds)
+    val historicalSteps by healthDataViewModel.historicalSteps.collectAsState()
+    val historicalSleep by healthDataViewModel.historicalSleep.collectAsState()
+    val historicalHydration by healthDataViewModel.historicalHydration.collectAsState()
 
-    // 初次載入步數資料
+    // 每次進入畫面時自動觸發讀取
     LaunchedEffect(Unit) {
-        steps = healthRepository.getSteps()
+        healthDataViewModel.readHealthData()
     }
+
+    // Hydration 手動輸入 state
+    var hydrationInput by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -33,38 +75,88 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                 title = { Text("WelliPet - Health Data") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { padding ->
-        // 以 Column 展示健康數據與臨時按鈕
-        Column(
+        // 使用 Column 展示感應器步數與歷史記錄
+        LazyColumn(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("Health Data Overview (Charts / Lists in the future), Below is a temporary button to write steps data")
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Total steps in last hour: $steps")
-            Spacer(modifier = Modifier.height(16.dp))
-            // 臨時按鈕：點擊後寫入步數資料，並更新顯示
-            Button(onClick = {
-                coroutineScope.launch {
-                    // 寫入 100 步數據，成功後重新讀取步數資料
-                    healthRepository.addSteps(100)
-                    steps = healthRepository.getSteps()
-                }
-            }) {
-                Text("Write Steps Data")
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ){
+            // Steps Section
+            item {
+                Text("Steps", style = MaterialTheme.typography.headlineSmall)
+                Text("Today's Steps: $currentSteps", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Steps (Last 7 days)", style = MaterialTheme.typography.headlineSmall)
+//                StepsLineChart(data = historicalSteps, modifier = Modifier.fillMaxWidth().height(200.dp))
+                StepsLineChartPlaceholder(data = historicalSteps)
             }
+            // Sleep Section
+            item {
+                Text("Sleep", style = MaterialTheme.typography.headlineSmall)
+                Text("Total Sleep (Past 24hrs): $formattedSleep", style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(8.dp))
+                SleepBarChartPlaceholder(data = historicalSleep)
+            }
+            // Hydration Section
+            item {
+                Text("Hydration", style = MaterialTheme.typography.headlineSmall)
+                Text("Total Hydration (Past 24hrs): $currentHydration ml", style = MaterialTheme.typography.bodyLarge)
+                // 假設每日目標 2000 ml
+                val hydrationTarget = 2000L
+                LinearProgressIndicator(
+                    progress = (currentHydration.toFloat() / hydrationTarget.toFloat()).coerceIn(0f, 1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = hydrationInput,
+                    onValueChange = { hydrationInput = it },
+                    label = { Text("Enter Hydration (ml)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        hydrationInput.toLongOrNull()?.let { ml ->
+                            healthDataViewModel.addHydration(ml)
+                            hydrationInput = ""
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Add Hydration")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                HydrationBarChartPlaceholder(data = historicalHydration)
+            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Button(onClick = { healthDataViewModel.storeSensorSteps() }) {
+//                Text("Store Sensor Steps to DB")
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Button(onClick = { healthDataViewModel.loadHistoricalData() }) {
+//                Text("Load Historical Data")
+//            }
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Text("Historical Data: ", style = MaterialTheme.typography.headlineSmall)
+//            for (stepCount in historicalSteps) {
+//                Text("At ${stepCount.createdAt}: ${stepCount.steps} steps")
+//            }
         }
     }
+}
+
+fun formatSleepDuration(totalSeconds: Long): String {
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    return "${hours}hr ${minutes}min"
 }
