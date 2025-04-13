@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "325697667058",
+    "project_id": "welipet",
+    "storage_bucket": "welipet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:325697667058:android:ed06ef7ea69f7b561a356b",
+        "android_client_info": {
+          "package_name": "com.example.wellipet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy_9BPGmb41CNw8xvVAbwZQFQ4Ix_PlvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
