@@ -53,6 +53,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation(libs.converter.moshi)
+    implementation(libs.retrofit)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.play.services.location)
+
     implementation("androidx.health.connect:connect-client:1.1.0-beta01")
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("io.coil-kt:coil-gif:2.6.0")

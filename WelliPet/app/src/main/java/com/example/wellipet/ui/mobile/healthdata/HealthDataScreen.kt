@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wellipet.ui.components.StepsLineChart
 import com.example.wellipet.ui.components.SleepBarChart
+import com.example.wellipet.ui.components.HydrationBarChart
 import com.example.wellipet.data.model.StepCount
 
 // Placeholder for line chart (Steps)
@@ -168,7 +169,9 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                     Text("Add Hydration")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                HydrationBarChartPlaceholder(data = historicalHydration)
+                Text("Hydration History", style = MaterialTheme.typography.headlineSmall)
+                HydrationBarChart(data = historicalHydration, modifier = Modifier.fillMaxWidth().height(200.dp))
+//                HydrationBarChartPlaceholder(data = historicalHydration)
             }
 //            Spacer(modifier = Modifier.height(16.dp))
 //            Button(onClick = { healthDataViewModel.storeSensorSteps() }) {
