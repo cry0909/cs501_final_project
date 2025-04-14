@@ -1,4 +1,4 @@
-package com.example.wellipet
+package com.example.wellipet.utils
 
 
 import com.example.wellipet.R
