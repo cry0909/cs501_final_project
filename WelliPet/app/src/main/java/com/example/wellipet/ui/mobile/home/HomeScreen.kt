@@ -1,3 +1,4 @@
+// File: com/example/wellipet/ui/mobile/home/HomeScreen.kt
 package com.example.wellipet.ui.mobile.home
 
 import RequestLocationPermission
@@ -18,30 +19,25 @@ import coil.compose.AsyncImage
 import coil.ImageLoader
 import coil.decode.ImageDecoderDecoder
 import com.example.wellipet.R
-import com.example.wellipet.api.WeatherViewModel
+import com.example.wellipet.utils.getSuggestionText
+import com.example.wellipet.utils.getWeatherIconRes
 import com.example.wellipet.ui.components.BottomNavigationBar
-
-import com.example.wellipet.getSuggestionText
-import com.example.wellipet.getWeatherIconRes
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    weatherViewModel: WeatherViewModel = viewModel()
+    homeViewModel: HomeViewModel = viewModel()
 ) {
-    // 请求位置权限，若授权则调用 fetchWeatherByLocation，否则查询默认城市（例如 "Beijing"）
+    // 請求位置權限，這裡僅作為一開始確認權限已授予
     RequestLocationPermission { granted ->
-        if (granted) {
-            weatherViewModel.fetchWeatherByLocation()
-        }
+        // 由 HomeViewModel 自動訂閱位置變化
     }
 
-    // 观察天气数据状态
-    val weatherResponse by weatherViewModel.weatherState.collectAsState()
+    val weatherResponse by homeViewModel.weatherResponse.collectAsState()
 
-    // 初始化用于加载 GIF 图片的 ImageLoader
+    // 初始化 GIF 用的 ImageLoader
     val context = LocalContext.current
     val gifImageLoader = remember {
         ImageLoader.Builder(context)
@@ -50,26 +46,22 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("WelliPet - Home") })
-        },
-        bottomBar = {
-            BottomNavigationBar(navController)
-        }
+        topBar = { TopAppBar(title = { Text("WelliPet - Home") }) },
+        bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // 背景图片
+            // 背景圖片
             AsyncImage(
                 model = R.drawable.bg_park,
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop
             )
-            // 左上角显示天气信息（图标 + 文字描述 + 运动建议）
+            // 顯示天氣資訊區塊
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -77,14 +69,15 @@ fun HomeScreen(
             ) {
                 if (weatherResponse != null) {
                     Text(
-                        text = "City：${weatherResponse!!.name}",
-                        style = MaterialTheme.typography.bodySmall
+                        text = "City: ${weatherResponse!!.name}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
                     )
                     Text(
-                        text = "Temp：${weatherResponse!!.main.temp}°C",
-                        style = MaterialTheme.typography.bodySmall
+                        text = "Temp: ${weatherResponse!!.main.temp}°C",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
                     )
-                    // 遍历所有天气情况
                     weatherResponse!!.weather.forEach { weather ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -95,29 +88,31 @@ fun HomeScreen(
                                 painter = painterResource(id = iconRes),
                                 contentDescription = weather.description,
                                 modifier = Modifier.size(48.dp),
-                                tint = Color.Unspecified // 取消默认着色，显示原始颜色
+                                tint = Color.Unspecified
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = weather.description,
-                                style = MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White
                             )
                         }
-                        // 显示对应的运动建议
                         val suggestion = getSuggestionText(weather.description)
                         Text(
                             text = suggestion,
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White
                         )
                     }
                 } else {
                     Text(
-                        text = "Loading...",
-                        style = MaterialTheme.typography.bodySmall
+                        text = "Loading weather...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
                     )
                 }
             }
-            // 居中显示宠物内容
+            // 中央顯示寵物內容
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,9 +126,9 @@ fun HomeScreen(
                         .size(300.dp)
                         .clip(CircleShape)
                 )
-                Text("Feeling Happy", style = MaterialTheme.typography.headlineSmall)
+                Text("Feeling Happy", style = MaterialTheme.typography.headlineSmall, color = Color.White)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Daily Health progress: Steps / Sleep / Water ...")
+                Text("Daily Health progress: Steps / Sleep / Water ...", color = Color.White)
             }
         }
     }
