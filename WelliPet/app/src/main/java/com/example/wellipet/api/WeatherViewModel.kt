@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 class WeatherViewModel(application: Application) : AndroidViewModel(application) {
     private val _weatherState = MutableStateFlow<WeatherResponse?>(null)
     val weatherState: StateFlow<WeatherResponse?> = _weatherState
-    private val apiKey = "168c570c1ea3755876596d9b6fc3ea76"
+    private val apiKey = "Your API Key"
 
     // 假设你已经初始化 RetrofitClient.weatherService
     fun fetchWeatherByLocation() {
