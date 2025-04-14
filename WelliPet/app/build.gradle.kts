@@ -67,7 +67,7 @@ dependencies {
     kapt(libs.androidx.room.compiler) // for annotation processing
     implementation(libs.androidx.room.ktx) // for Flow and coroutines
 
-//    implementation("com.github.AppDevNext:AndroidChart:3.1.0.26")
+    implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
     
 
     testImplementation(libs.junit)

@@ -126,7 +126,7 @@ class HealthConnectSource(context: Context) {
 
 
     // 讀取歷史步數：取得過去 N 天每天的總步數
-    suspend fun readHistoricalSteps(days: Int = 7): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
+    suspend fun readHistoricalSteps(days: Int = 30): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
         val results = mutableListOf<Pair<String, Long>>()
         val now = Instant.now()
         // 從今天起往回

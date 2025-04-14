@@ -37,14 +37,14 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
 
 
     // 讀取 Health Connect 上的所有數據（步數、睡眠、飲水）
-    fun readHealthData() {
+    fun readHealthData(rangeDays: Int = 7) {
         viewModelScope.launch {
             _currentSteps.value = repository.getSteps()
             _currentSleep.value = repository.readSleep()
             _currentHydration.value = repository.readHydration()
-            _historicalSteps.value = repository.getHistoricalSteps(7)
-            _historicalSleep.value = repository.getHistoricalSleep(7)
-            _historicalHydration.value = repository.getHistoricalHydration(7)
+            _historicalSteps.value = repository.getHistoricalSteps(rangeDays)
+            _historicalSleep.value = repository.getHistoricalSleep(rangeDays)
+            _historicalHydration.value = repository.getHistoricalHydration(rangeDays)
         }
     }
 

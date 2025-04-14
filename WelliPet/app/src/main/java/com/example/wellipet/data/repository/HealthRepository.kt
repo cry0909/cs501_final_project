@@ -48,7 +48,7 @@ class HealthRepository(context: Context) {
     }
 
     // 歷史資料函式
-    suspend fun getHistoricalSteps(days: Int = 7): List<Pair<String, Long>> {
+    suspend fun getHistoricalSteps(days: Int = 30): List<Pair<String, Long>> {
         return healthConnectSource.readHistoricalSteps(days)
     }
 

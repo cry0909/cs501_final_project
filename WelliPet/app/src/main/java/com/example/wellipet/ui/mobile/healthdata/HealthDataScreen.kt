@@ -12,7 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-//import com.example.wellipet.ui.components.StepsLineChart
+import com.example.wellipet.ui.components.StepsLineChart
+import com.example.wellipet.ui.components.SleepBarChart
 import com.example.wellipet.data.model.StepCount
 
 // Placeholder for line chart (Steps)
@@ -61,9 +62,13 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
     val historicalSleep by healthDataViewModel.historicalSleep.collectAsState()
     val historicalHydration by healthDataViewModel.historicalHydration.collectAsState()
 
-    // 每次進入畫面時自動觸發讀取
-    LaunchedEffect(Unit) {
-        healthDataViewModel.readHealthData()
+    // 日期範圍選擇部分
+    var selectedDays by remember { mutableStateOf(7) }
+    val dayOptions = listOf(7, 14, 30)
+    var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedDays) {
+        healthDataViewModel.readHealthData(selectedDays)
     }
 
     // Hydration 手動輸入 state
@@ -89,21 +94,48 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ){
+            // 在頁面最上方加入日期範圍選擇
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Select range: ", style = MaterialTheme.typography.bodyLarge)
+                    Box {
+                        Button(onClick = { expanded = true }) {
+                            Text("$selectedDays Days")
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            dayOptions.forEach { day ->
+                                DropdownMenuItem(
+                                    text = { Text("$day Days") },
+                                    onClick = {
+                                        selectedDays = day
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
             // Steps Section
             item {
                 Text("Steps", style = MaterialTheme.typography.headlineSmall)
                 Text("Today's Steps: $currentSteps", style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Steps (Last 7 days)", style = MaterialTheme.typography.headlineSmall)
-//                StepsLineChart(data = historicalSteps, modifier = Modifier.fillMaxWidth().height(200.dp))
-                StepsLineChartPlaceholder(data = historicalSteps)
+                Text("Steps History", style = MaterialTheme.typography.headlineSmall)
+                StepsLineChart(data = historicalSteps, modifier = Modifier.fillMaxWidth().height(200.dp))
+//                StepsLineChartPlaceholder(data = historicalSteps)
             }
             // Sleep Section
             item {
                 Text("Sleep", style = MaterialTheme.typography.headlineSmall)
                 Text("Total Sleep (Past 24hrs): $formattedSleep", style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(8.dp))
-                SleepBarChartPlaceholder(data = historicalSleep)
+                Text("Sleep History", style = MaterialTheme.typography.headlineSmall)
+                SleepBarChart(data = historicalSleep, modifier = Modifier.fillMaxWidth().height(200.dp))
+//                SleepBarChartPlaceholder(data = historicalSleep)
             }
             // Hydration Section
             item {
