@@ -46,13 +46,13 @@ class AuthViewModel : ViewModel() {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 _authState.value = AuthState.Success(result.user!!)
+                viewModelScope.launch {
+                    _navigationEvent.emit(Unit)
+                }
                 // 這裡未來可以額外設定例如用戶等級的初始化資料
             }
             .addOnFailureListener { exception ->
                 _authState.value = AuthState.Error(exception.message ?: "Unknown error")
-                viewModelScope.launch {
-                    _navigationEvent.emit(Unit)
-                }
             }
     }
 }
