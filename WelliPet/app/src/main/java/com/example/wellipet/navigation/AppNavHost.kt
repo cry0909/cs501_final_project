@@ -41,6 +41,7 @@ fun AppNavHost() {
                 onSignUpSuccess = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
                 onBackToLogin = { navController.popBackStack() }
