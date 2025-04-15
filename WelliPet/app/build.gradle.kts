@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.common.android)
     implementation(libs.androidx.navigation.common.ktx)
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.firebase.crashlytics)
