@@ -16,7 +16,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val locationRepository = LocationRepository(application)
     private val weatherService = RetrofitClient.weatherService
-    private val apiKey = "Your API KEY"
+    private val apiKey = "168c570c1ea3755876596d9b6fc3ea76"
 
     private val _weatherResponse = MutableStateFlow<WeatherResponse?>(null)
     val weatherResponse: StateFlow<WeatherResponse?> = _weatherResponse

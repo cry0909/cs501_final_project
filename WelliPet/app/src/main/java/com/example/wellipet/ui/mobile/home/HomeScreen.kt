@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -23,12 +24,16 @@ import com.example.wellipet.utils.getSuggestionText
 import com.example.wellipet.utils.getWeatherIconRes
 import com.example.wellipet.ui.components.BottomNavigationBar
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.example.wellipet.ui.store.StoreViewModel
+//import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = viewModel(),
+    storeViewModel: StoreViewModel = viewModel()       // 負責商店選擇 (寵物 & 背景)
+
 ) {
     // 請求位置權限，這裡僅作為一開始確認權限已授予
     RequestLocationPermission { granted ->
@@ -36,6 +41,13 @@ fun HomeScreen(
     }
 
     val weatherResponse by homeViewModel.weatherResponse.collectAsState()
+
+
+    // 從 StoreViewModel 取得用戶選擇的寵物與背景資源 (若尚未選擇，使用預設值)
+    val selectedPet by storeViewModel.selectedPet.collectAsState()
+    val selectedBackground by storeViewModel.selectedBackground.collectAsState()
+    val petRes = selectedPet ?: R.drawable.dog      // 預設寵物圖片
+    val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
 
     // 初始化 GIF 用的 ImageLoader
     val context = LocalContext.current
@@ -54,12 +66,12 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // 背景圖片
+            // 使用用戶選擇或預設背景圖片作為背景
             AsyncImage(
-                model = R.drawable.bg_park,
-                contentDescription = null,
+                model = backgroundRes,
+                contentDescription = "Background",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                contentScale = ContentScale.Crop
             )
             // 顯示天氣資訊區塊
             Column(
@@ -119,12 +131,13 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 AsyncImage(
-                    model = R.drawable.dog,
+                    model = petRes,
                     imageLoader = gifImageLoader,
-                    contentDescription = "Animated Pet",
+                    contentDescription = "Selected Pet",
                     modifier = Modifier
                         .size(300.dp)
-                        .clip(CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
                 )
                 Text("Feeling Happy", style = MaterialTheme.typography.headlineSmall, color = Color.White)
                 Spacer(modifier = Modifier.height(8.dp))
