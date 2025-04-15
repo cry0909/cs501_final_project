@@ -84,9 +84,6 @@ fun SignUpScreen(
                     Spacer(Modifier.height(16.dp))
                     Text((authState as AuthState.Error).message, color = MaterialTheme.colorScheme.error)
                 }
-                is AuthState.Success -> {
-                    onSignUpSuccess()
-                }
                 else -> {}
             }
         }

@@ -69,10 +69,6 @@ fun LoginScreen(
                     Spacer(Modifier.height(16.dp))
                     Text((authState as AuthState.Error).message, color = MaterialTheme.colorScheme.error)
                 }
-                is AuthState.Success -> {
-                    // 當登入成功後，自動呼叫 onLoginSuccess
-                    onLoginSuccess()
-                }
                 else -> {} // Idle 狀態不作處理
             }
         }
