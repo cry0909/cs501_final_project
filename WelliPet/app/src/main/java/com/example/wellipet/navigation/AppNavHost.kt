@@ -2,14 +2,21 @@
 package com.example.wellipet.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import androidx.compose.ui.platform.LocalContext
 import com.example.wellipet.ui.auth.LoginScreen
 import com.example.wellipet.ui.auth.SignUpScreen
 import com.example.wellipet.ui.mobile.home.HomeScreen
 import com.example.wellipet.ui.mobile.healthdata.HealthDataScreen
 import com.example.wellipet.ui.mobile.store.StoreScreen
+import com.google.firebase.auth.FirebaseAuth
+import com.example.wellipet.data.AuthPreferences.rememberMeFlow
+import com.example.wellipet.data.AuthPreferences.setRememberMe
+
+
 
 sealed class Screen(val route: String, val label: String) {
     object Login : Screen("login", "Login")
@@ -25,7 +32,19 @@ sealed class Screen(val route: String, val label: String) {
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+    val context = LocalContext.current
+    val rememberMe by context.rememberMeFlow.collectAsState(initial = false)
+    val firebaseUser = FirebaseAuth.getInstance().currentUser
+
+
+    val start = if (firebaseUser != null && rememberMe) {
+        Screen.Home.route
+    } else {
+        Screen.Login.route
+    }
+
+
+    NavHost(navController = navController, startDestination = start) {
         composable(Screen.Login.route) {
             LoginScreen(
                 onLoginSuccess = {
@@ -39,7 +58,7 @@ fun AppNavHost() {
         composable(Screen.SignUp.route) {
             SignUpScreen(
                 onSignUpSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }

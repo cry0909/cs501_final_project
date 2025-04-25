@@ -18,16 +18,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.example.wellipet.R
 import androidx.lifecycle.viewmodel.compose.viewModel
-//import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.wellipet.ui.store.StoreViewModel
+import com.example.wellipet.ui.mobile.store.StoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +44,11 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
         R.drawable.bg_park,
         R.drawable.bg_beach,
         R.drawable.bg_rain,
-        R.drawable.bg_city
+        R.drawable.bg_city,
+        R.drawable.bg_avenue
     )
 
-    // 從 ViewModel 中取得當前選擇
+    // 從 StoreViewModel 中取得當前選擇 (DataStore 保存的值)
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
 

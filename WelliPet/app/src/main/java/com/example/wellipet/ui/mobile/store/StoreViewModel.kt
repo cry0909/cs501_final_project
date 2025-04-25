@@ -1,28 +1,30 @@
-// File: com/example/wellipet/ui/store/StoreViewModel.kt
-package com.example.wellipet.ui.store
+// File: com/example/wellipet/ui/mobile/store/StoreViewModel.kt
+package com.example.wellipet.ui.mobile.store
 
-//import android.app.Application
-//import androidx.lifecycle.AndroidViewModel
-//import dagger.hilt.android.lifecycle.HiltViewModel
-//import javax.inject.Inject
-import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.wellipet.data.StorePreferencesRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
+class StoreViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = StorePreferencesRepository(application)
 
-
-class StoreViewModel : ViewModel() {
-    private val _selectedPet = MutableStateFlow<Int?>(null)
-    val selectedPet: StateFlow<Int?> = _selectedPet
-
-    private val _selectedBackground = MutableStateFlow<Int?>(null)
-    val selectedBackground: StateFlow<Int?> = _selectedBackground
+    // 使用 DataStore 提供的 Flow 並轉換成 StateFlow，預設值為 null
+    val selectedPet = repository.selectedPet.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    val selectedBackground = repository.selectedBackground.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun selectPet(resId: Int) {
-        _selectedPet.value = resId
+        viewModelScope.launch {
+            repository.saveSelectedPet(resId)
+        }
     }
 
     fun selectBackground(resId: Int) {
-        _selectedBackground.value = resId
+        viewModelScope.launch {
+            repository.saveSelectedBackground(resId)
+        }
     }
 }

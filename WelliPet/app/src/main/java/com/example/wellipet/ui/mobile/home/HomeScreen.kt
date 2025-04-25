@@ -10,46 +10,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.layout.ContentScale
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.ImageLoader
 import coil.decode.ImageDecoderDecoder
 import com.example.wellipet.R
-import com.example.wellipet.utils.getSuggestionText
-import com.example.wellipet.utils.getWeatherIconRes
 import com.example.wellipet.ui.components.BottomNavigationBar
+import com.example.wellipet.ui.mobile.store.StoreViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.example.wellipet.ui.store.StoreViewModel
-//import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = viewModel(),
-    storeViewModel: StoreViewModel = viewModel()       // 負責商店選擇 (寵物 & 背景)
-
+    storeViewModel: StoreViewModel = viewModel()   // 請確保此 viewModel 屬於共享範圍
 ) {
-    // 請求位置權限，這裡僅作為一開始確認權限已授予
     RequestLocationPermission { granted ->
-        // 由 HomeViewModel 自動訂閱位置變化
+        // HomeViewModel 已經在 init 中處理位置更新與天氣刷新
     }
 
     val weatherResponse by homeViewModel.weatherResponse.collectAsState()
 
-
-    // 從 StoreViewModel 取得用戶選擇的寵物與背景資源 (若尚未選擇，使用預設值)
+    // 從 StoreViewModel 中讀取永久保存的選擇（DataStore）
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
     val petRes = selectedPet ?: R.drawable.dog      // 預設寵物圖片
     val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
 
-    // 初始化 GIF 用的 ImageLoader
     val context = LocalContext.current
     val gifImageLoader = remember {
         ImageLoader.Builder(context)
@@ -66,14 +59,14 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            // 使用用戶選擇或預設背景圖片作為背景
+            // 背景圖：根據 StoreViewModel 選擇更新
             AsyncImage(
                 model = backgroundRes,
                 contentDescription = "Background",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-            // 顯示天氣資訊區塊
+            // 天氣資訊區塊（固定位置）
             Column(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -95,7 +88,7 @@ fun HomeScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
-                            val iconRes = getWeatherIconRes(weather.description)
+                            val iconRes = com.example.wellipet.utils.getWeatherIconRes(weather.description)
                             Icon(
                                 painter = painterResource(id = iconRes),
                                 contentDescription = weather.description,
@@ -109,7 +102,7 @@ fun HomeScreen(
                                 color = Color.White
                             )
                         }
-                        val suggestion = getSuggestionText(weather.description)
+                        val suggestion = com.example.wellipet.utils.getSuggestionText(weather.description)
                         Text(
                             text = suggestion,
                             style = MaterialTheme.typography.bodySmall,
@@ -126,7 +119,8 @@ fun HomeScreen(
             }
             // 中央顯示寵物內容
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
+                .padding(top = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -139,9 +133,16 @@ fun HomeScreen(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
-                Text("Feeling Happy", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                Text(
+                    text = "Feeling Happy",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Daily Health progress: Steps / Sleep / Water ...", color = Color.White)
+                Text(
+                    text = "Daily Health progress: Steps / Sleep / Water ...",
+                    color = Color.White
+                )
             }
         }
     }

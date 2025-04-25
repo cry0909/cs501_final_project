@@ -75,6 +75,8 @@ dependencies {
     implementation(libs.androidx.room.ktx) // for Flow and coroutines
 
     implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
+
+    implementation(libs.androidx.datastore.preferences)
     
 
     testImplementation(libs.junit)
