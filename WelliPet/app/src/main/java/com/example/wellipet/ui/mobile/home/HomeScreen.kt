@@ -4,16 +4,25 @@ package com.example.wellipet.ui.mobile.home
 import RequestLocationPermission
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -23,6 +32,47 @@ import com.example.wellipet.R
 import com.example.wellipet.ui.components.BottomNavigationBar
 import com.example.wellipet.ui.mobile.store.StoreViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CuteTopBar() {
+    // ---- Step.1 定義字體 ----
+    val Cus = GoogleFont("Press Start 2P")
+    val CusProvider = GoogleFont.Provider(
+        providerAuthority = "com.google.android.gms.fonts",
+        providerPackage = "com.google.android.gms",
+        certificates = R.array.com_google_android_gms_fonts_certs
+    )
+    val CusFont = FontFamily(
+        Font(googleFont = Cus, fontProvider = CusProvider, weight = FontWeight.Bold)
+    )
+
+    // ---- Step.2 畫出 AppBar ----
+    TopAppBar(
+        // 先讓 AppBar 自身透明，並在外層加上漸層背景
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Brush.horizontalGradient(
+                    listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
+                )
+            )
+            .shadow(2.dp, shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
+        title = {
+            Text(
+                "WelliPet",
+                fontFamily = CusFont,
+                fontSize = 28.sp,
+                color = Color(0xFF4F2603)
+            )
+        },
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = Color.Transparent  // 透明底色
+//            titleContentColor = Color(0xFF020202)
+        )
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -51,7 +101,7 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("WelliPet - Home") }) },
+        topBar = { CuteTopBar() },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Box(
