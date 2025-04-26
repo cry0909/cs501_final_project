@@ -1,194 +1,196 @@
 // File: com/example/wellipet/ui/mobile/healthdata/HealthDataScreen.kt
 package com.example.wellipet.ui.mobile.healthdata
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults.cardElevation
+import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.wellipet.ui.components.CuteTopBar
 import com.example.wellipet.ui.components.StepsLineChart
 import com.example.wellipet.ui.components.SleepBarChart
 import com.example.wellipet.ui.components.HydrationBarChart
-import com.example.wellipet.data.model.StepCount
-
-// Placeholder for line chart (Steps)
-@Composable
-fun StepsLineChartPlaceholder(data: List<Pair<String, Long>>) {
-    // 實際應用中可使用 Compose chart library 或 MPAndroidChart 轉換為 Compose
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Steps History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
-        data.forEach { (date, steps) ->
-            Text("$date: $steps steps")
-        }
-    }
-}
-
-// Placeholder for bar chart (Sleep)
-@Composable
-fun SleepBarChartPlaceholder(data: List<Pair<String, Long>>) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Sleep History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
-        data.forEach { (date, seconds) ->
-            Text("$date: ${formatSleepDuration(seconds)}")
-        }
-    }
-}
-
-// Placeholder for bar chart (Hydration)
-@Composable
-fun HydrationBarChartPlaceholder(data: List<Pair<String, Long>>) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Hydration History (Last 7 Days)", style = MaterialTheme.typography.bodyLarge)
-        data.forEach { (date, ml) ->
-            Text("$date: $ml ml")
-        }
-    }
-}
+import androidx.compose.ui.unit.sp
+import com.example.wellipet.ui.components.CuteTopBar
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthDataScreen(onBackClick: () -> Unit) {
-    val healthDataViewModel: HealthDataViewModel = viewModel()
-    val currentSteps by healthDataViewModel.currentSensorSteps.collectAsState()
-    val currentSleepSeconds by healthDataViewModel.currentSleep.collectAsState()
-    val currentHydration by healthDataViewModel.currentHydration.collectAsState()
-    val formattedSleep = formatSleepDuration(currentSleepSeconds)
-    val historicalSteps by healthDataViewModel.historicalSteps.collectAsState()
-    val historicalSleep by healthDataViewModel.historicalSleep.collectAsState()
-    val historicalHydration by healthDataViewModel.historicalHydration.collectAsState()
+    val vm: HealthDataViewModel = viewModel()
+    val steps by vm.currentSensorSteps.collectAsState()
+    val sleepSec by vm.currentSleep.collectAsState()
+    val hydration by vm.currentHydration.collectAsState()
+    val formattedSleep = formatSleepDuration(sleepSec)
+    val histSteps by vm.historicalSteps.collectAsState()
+    val histSleep by vm.historicalSleep.collectAsState()
+    val histHyd by vm.historicalHydration.collectAsState()
 
-    // 日期範圍選擇部分
+    // 範圍選擇
     var selectedDays by remember { mutableStateOf(7) }
-    val dayOptions = listOf(7, 14, 30)
-    var expanded by remember { mutableStateOf(false) }
+    val daysOptions = listOf(7, 14, 30)
+    var expandRange by remember { mutableStateOf(false) }
+    LaunchedEffect(selectedDays) { vm.readHealthData(selectedDays) }
 
-    LaunchedEffect(selectedDays) {
-        healthDataViewModel.readHealthData(selectedDays)
-    }
-
-    // Hydration 手動輸入 state
-    var hydrationInput by remember { mutableStateOf("") }
+    // 手動輸入水量
+    var inputHyd by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("WelliPet - Health Data") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            CuteTopBar(
+                title     = "Health Data",
+                fontSize  = 22.sp,
+                gradient  = Brush.horizontalGradient(listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2))),
+                elevation = 4f,
+                onBackClick = onBackClick
             )
         }
     ) { padding ->
-        // 使用 Column 展示感應器步數與歷史記錄
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ){
-            // 在頁面最上方加入日期範圍選擇
-            item {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Select range: ", style = MaterialTheme.typography.bodyLarge)
-                    Box {
-                        Button(onClick = { expanded = true }) {
-                            Text("$selectedDays Days")
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            dayOptions.forEach { day ->
-                                DropdownMenuItem(
-                                    text = { Text("$day Days") },
-                                    onClick = {
-                                        selectedDays = day
-                                        expanded = false
-                                    }
-                                )
-                            }
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // 1. 日期範圍
+            Card(
+                colors    = cardColors(containerColor = Color(0xFFE6E1FC)),
+                elevation = cardElevation(defaultElevation = 4.dp),
+                shape     = RoundedCornerShape(12.dp),
+                modifier  = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Selected Range: ", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.width(8.dp))
+                    Button(onClick = { expandRange = true }) {
+                        Text("$selectedDays Days")
+                    }
+                    DropdownMenu(
+                        expanded = expandRange,
+                        onDismissRequest = { expandRange = false }
+                    ) {
+                        daysOptions.forEach { d ->
+                            DropdownMenuItem(
+                                text = { Text("$d Days") },
+                                onClick = {
+                                    selectedDays = d
+                                    expandRange = false
+                                }
+                            )
                         }
                     }
                 }
             }
-            // Steps Section
-            item {
-                Text("Steps", style = MaterialTheme.typography.headlineSmall)
-                Text("Today's Steps: $currentSteps", style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Steps History", style = MaterialTheme.typography.headlineSmall)
-                StepsLineChart(data = historicalSteps, modifier = Modifier.fillMaxWidth().height(200.dp))
-//                StepsLineChartPlaceholder(data = historicalSteps)
-            }
-            // Sleep Section
-            item {
-                Text("Sleep", style = MaterialTheme.typography.headlineSmall)
-                Text("Total Sleep (Past 24hrs): $formattedSleep", style = MaterialTheme.typography.bodyLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Sleep History", style = MaterialTheme.typography.headlineSmall)
-                SleepBarChart(data = historicalSleep, modifier = Modifier.fillMaxWidth().height(200.dp))
-//                SleepBarChartPlaceholder(data = historicalSleep)
-            }
-            // Hydration Section
-            item {
-                Text("Hydration", style = MaterialTheme.typography.headlineSmall)
-                Text("Total Hydration (Past 24hrs): $currentHydration ml", style = MaterialTheme.typography.bodyLarge)
-                // 假設每日目標 2000 ml
-                val hydrationTarget = 2000L
-                LinearProgressIndicator(
-                    progress = (currentHydration.toFloat() / hydrationTarget.toFloat()).coerceIn(0f, 1f),
-                    modifier = Modifier
+
+            // 2. 步數
+            Card(
+                colors    = cardColors(containerColor = Color(0xFFF0FCE7)),
+                elevation = cardElevation(defaultElevation = 4.dp),
+                shape     = RoundedCornerShape(12.dp),
+                modifier  = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("Today's Steps：$steps", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Steps History", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
+                    StepsLineChart(data = histSteps, modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = hydrationInput,
-                    onValueChange = { hydrationInput = it },
-                    label = { Text("Enter Hydration (ml)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Button(
-                    onClick = {
-                        hydrationInput.toLongOrNull()?.let { ml ->
-                            healthDataViewModel.addHydration(ml)
-                            hydrationInput = ""
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Add Hydration")
+                        .height(180.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Hydration History", style = MaterialTheme.typography.headlineSmall)
-                HydrationBarChart(data = historicalHydration, modifier = Modifier.fillMaxWidth().height(200.dp))
-//                HydrationBarChartPlaceholder(data = historicalHydration)
             }
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(onClick = { healthDataViewModel.storeSensorSteps() }) {
-//                Text("Store Sensor Steps to DB")
-//            }
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(onClick = { healthDataViewModel.loadHistoricalData() }) {
-//                Text("Load Historical Data")
-//            }
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Text("Historical Data: ", style = MaterialTheme.typography.headlineSmall)
-//            for (stepCount in historicalSteps) {
-//                Text("At ${stepCount.createdAt}: ${stepCount.steps} steps")
-//            }
+
+            // 3. 睡眠
+            Card(
+                colors    = cardColors(containerColor = Color(0xFFFDEFE3)),
+                elevation = cardElevation(defaultElevation = 4.dp),
+                shape     = RoundedCornerShape(12.dp),
+                modifier  = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("Total Sleep (Past 24hrs)：$formattedSleep", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(8.dp))
+                    Text("Sleep History", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
+                    SleepBarChart(data = histSleep, modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp))
+                }
+            }
+
+            // 4. 飲水
+            Card(
+                colors    = cardColors(containerColor = Color(0xFFE7FBFF)),
+                elevation = cardElevation(defaultElevation = 4.dp),
+                shape     = RoundedCornerShape(12.dp),
+                modifier  = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text("Total Hydration (Past 24hrs)：$hydration ml", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(8.dp))
+                    val target = 2000L
+                    LinearProgressIndicator(
+                        progress  = (hydration.toFloat()/target).coerceIn(0f,1f),
+                        modifier  = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value           = inputHyd,
+                        onValueChange   = { inputHyd = it },
+                        label           = { Text("Enter Hydration (ml)") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier        = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            inputHyd.toLongOrNull()?.let {
+                                vm.addHydration(it)
+                                inputHyd = ""
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add Hydration")
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text("Hydration History", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(8.dp))
+                    HydrationBarChart(data = histHyd, modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp))
+                }
+            }
         }
     }
 }
+
+// 如果你還沒定義，記得引入：
+
+
 
 fun formatSleepDuration(totalSeconds: Long): String {
     val hours = totalSeconds / 3600
