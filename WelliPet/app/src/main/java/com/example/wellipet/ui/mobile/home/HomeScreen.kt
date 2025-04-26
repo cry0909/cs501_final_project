@@ -69,7 +69,7 @@ fun WeatherCard(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
 
             // 天氣項目列表
             weatherList.forEach { weather ->
@@ -83,23 +83,23 @@ fun WeatherCard(
                         painter = painterResource(id = getWeatherIconRes(weather.description)),
                         contentDescription = null,
                         tint = Color.Unspecified,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(48.dp)
                     )
-                    Spacer(Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = weather.description
-                                .replaceFirstChar { it.uppercase() },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = getSuggestionText(weather.description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.LightGray
-                        )
-                    }
+                    Text(
+                        text = weather.description
+                            .replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
                 }
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    text = getSuggestionText(weather.description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.LightGray
+                )
             }
         }
     }
