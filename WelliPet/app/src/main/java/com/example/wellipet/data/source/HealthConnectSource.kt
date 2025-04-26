@@ -105,7 +105,7 @@ class HealthConnectSource(context: Context) {
         try {
             val now = Instant.now()
             val startTime = now.minus(Duration.ofMinutes(1))
-            // 建立 HydrationRecord，請依照你使用的 API 版本調整參數
+            // 建立 HydrationRecord,
             val hydrationRecord = HydrationRecord(
                 startTime = startTime,
                 startZoneOffset = ZoneOffset.UTC,

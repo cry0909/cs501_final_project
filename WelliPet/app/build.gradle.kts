@@ -53,6 +53,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation ("androidx.compose.ui:ui-text-google-fonts:1.7.8")
+
+
     implementation(libs.converter.moshi)
     implementation(libs.retrofit)
     implementation(libs.accompanist.permissions)
@@ -75,6 +78,8 @@ dependencies {
     implementation(libs.androidx.room.ktx) // for Flow and coroutines
 
     implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
+
+    implementation(libs.androidx.datastore.preferences)
     
 
     testImplementation(libs.junit)
