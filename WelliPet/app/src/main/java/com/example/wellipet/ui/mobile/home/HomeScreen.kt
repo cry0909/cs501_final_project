@@ -5,22 +5,16 @@ import RequestLocationPermission
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,50 +25,88 @@ import coil.decode.ImageDecoderDecoder
 import com.example.wellipet.R
 import com.example.wellipet.ui.components.BottomNavigationBar
 import com.example.wellipet.ui.mobile.store.StoreViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.example.wellipet.utils.getWeatherIconRes
+import com.example.wellipet.utils.getSuggestionText
+import com.example.wellipet.api.WeatherInfo
+import com.example.wellipet.ui.components.CuteTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CuteTopBar() {
-    // ---- Step.1 定義字體 ----
-    val Cus = GoogleFont("Press Start 2P")
-    val CusProvider = GoogleFont.Provider(
-        providerAuthority = "com.google.android.gms.fonts",
-        providerPackage = "com.google.android.gms",
-        certificates = R.array.com_google_android_gms_fonts_certs
-    )
-    val CusFont = FontFamily(
-        Font(googleFont = Cus, fontProvider = CusProvider, weight = FontWeight.Bold)
-    )
-
-    // ---- Step.2 畫出 AppBar ----
-    TopAppBar(
-        // 先讓 AppBar 自身透明，並在外層加上漸層背景
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                Brush.horizontalGradient(
-                    listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
+fun WeatherCard(
+    modifier: Modifier = Modifier,
+    city: String,
+    temp: Double,
+    weatherList: List<WeatherInfo>
+) {
+    // 半透明黑底、圓角、陰影
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Black.copy(alpha = 0.5f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth()   // 改成填滿寬度
+        ) {
+            // 標題列：城市 ＋ 溫度
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = city,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
                 )
-            )
-            .shadow(2.dp, shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
-        title = {
-            Text(
-                "WelliPet",
-                fontFamily = CusFont,
-                fontSize = 28.sp,
-                color = Color(0xFF4F2603)
-            )
-        },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = Color.Transparent  // 透明底色
-//            titleContentColor = Color(0xFF020202)
-        )
-    )
+                Text(
+                    text = "${"%.0f".format(temp)}°C",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // 天氣項目列表
+            weatherList.forEach { weather ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()         // 讓這一行也填滿寬度
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = getWeatherIconRes(weather.description)),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = weather.description
+                                .replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = getSuggestionText(weather.description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.LightGray
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+
 @Composable
 fun HomeScreen(
     navController: NavHostController,
@@ -101,7 +133,15 @@ fun HomeScreen(
     }
 
     Scaffold(
-        topBar = { CuteTopBar() },
+        topBar = { CuteTopBar(
+            title     = "WelliPet",
+            fontSize  = 32.sp,
+            titleColor= Color(0xFF6B3E1E),
+            gradient  = Brush.horizontalGradient(
+                listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
+            ),
+            elevation = 4f
+        ) },
         bottomBar = { BottomNavigationBar(navController) }
     ) { innerPadding ->
         Box(
@@ -117,56 +157,36 @@ fun HomeScreen(
                 contentScale = ContentScale.Crop
             )
             // 天氣資訊區塊（固定位置）
-            Column(
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(16.dp)
             ) {
                 if (weatherResponse != null) {
-                    Text(
-                        text = "City: ${weatherResponse!!.name}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White
+                    WeatherCard(
+                        city = weatherResponse!!.name,
+                        temp = weatherResponse!!.main.temp,
+                        weatherList = weatherResponse!!.weather,
+                        modifier = Modifier.fillMaxWidth(0.6f) // 卡片寬度調整
                     )
-                    Text(
-                        text = "Temp: ${weatherResponse!!.main.temp}°C",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White
-                    )
-                    weatherResponse!!.weather.forEach { weather ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 4.dp)
-                        ) {
-                            val iconRes = com.example.wellipet.utils.getWeatherIconRes(weather.description)
-                            Icon(
-                                painter = painterResource(id = iconRes),
-                                contentDescription = weather.description,
-                                modifier = Modifier.size(48.dp),
-                                tint = Color.Unspecified
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = weather.description,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White
-                            )
-                        }
-                        val suggestion = com.example.wellipet.utils.getSuggestionText(weather.description)
+                } else {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.Black.copy(alpha = 0.5f)
+                        ),
+                        elevation = CardDefaults.cardElevation(8.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Text(
-                            text = suggestion,
-                            style = MaterialTheme.typography.bodySmall,
+                            text = "Loading weather...",
+                            modifier = Modifier
+                                .padding(12.dp),
                             color = Color.White
                         )
                     }
-                } else {
-                    Text(
-                        text = "Loading weather...",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White
-                    )
                 }
             }
+
             // 中央顯示寵物內容
             Column(
                 modifier = Modifier.fillMaxSize()
