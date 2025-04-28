@@ -25,8 +25,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import com.example.wellipet.R
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.wellipet.ui.components.CuteTopBar
 import com.example.wellipet.ui.mobile.store.StoreViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,16 +58,12 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("WelliPet - Store") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        androidx.compose.material3.Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+            CuteTopBar(
+                title     = "Store",
+                fontSize  = 22.sp,
+                gradient  = Brush.horizontalGradient(listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2))),
+                elevation = 4f,
+                onBackClick = onBackClick
             )
         }
     ) { padding ->
