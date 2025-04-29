@@ -4,6 +4,7 @@ package com.example.wellipet.ui.mobile.store
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.wellipet.data.repository.FirebaseBadgeRepository
 import com.example.wellipet.data.StorePreferencesRepository
 import com.example.wellipet.data.BadgeCalculator
 import com.example.wellipet.data.repository.HealthRepository
@@ -14,6 +15,7 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = StorePreferencesRepository(application)
     private val healthRepo  = HealthRepository(application)
     private val badgeCalc   = BadgeCalculator(healthRepo)
+    private val badgeRepo = FirebaseBadgeRepository()
 
 
     /** 已選寵物資源 ID */
@@ -26,10 +28,10 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         repository.selectedBackground
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    /** 已選徽章 ID 集合（最多 3 個） */
-    // 已選徽章
+    /** 從 Firestore 讀取已選徽章 (最多 3 個) **/
     val selectedBadges: StateFlow<Set<String>> =
-        repository.selectedBadges.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+        badgeRepo.selectedBadgesFlow()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     // 計算出來的「已解鎖徽章」
     private val _unlockedBadges = MutableStateFlow<Set<String>>(emptySet())
@@ -61,25 +63,13 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
      * - 如果已經選擇，則移除
      * - 如果還沒選擇，且總數 < 3，則新增
      */
-    fun toggleBadge(badgeId: String) {
-        viewModelScope.launch {
-            val current = selectedBadges.value.toMutableSet()
-            if (current.contains(badgeId)) {
-                current.remove(badgeId)
-            } else if (current.size < 3) {
-                current.add(badgeId)
-            }
-            repository.saveSelectedBadges(current)
+    fun toggleBadge(badgeId: String) = viewModelScope.launch {
+        val current = selectedBadges.value.toMutableSet()
+        if (current.contains(badgeId)) {
+            current.remove(badgeId)
+        } else if (current.size < 3) {
+            current.add(badgeId)
         }
+        badgeRepo.saveSelectedBadges(current)
     }
-
-//    /**
-//     * 直接覆蓋整組徽章（例如一次性設定三個徽章）
-//     */
-//    fun setBadges(badgeIds: Set<String>) {
-//        viewModelScope.launch {
-//            // 只保留前三個
-//            repository.saveSelectedBadges(badgeIds.take(3).toSet())
-//        }
-//    }
 }

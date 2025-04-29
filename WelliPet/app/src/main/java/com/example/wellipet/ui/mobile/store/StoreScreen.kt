@@ -164,7 +164,6 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                     Card(
                         modifier = Modifier
                             .size(80.dp)
-                            // TODO: 在 unlock 完成後，這裡可以根據是否 unlock 來决定 enabled/disabled
                             .clickable(enabled = isUnlocked){ storeViewModel.toggleBadge(badgeId) }
                             .then(
                                 if (isSelected)

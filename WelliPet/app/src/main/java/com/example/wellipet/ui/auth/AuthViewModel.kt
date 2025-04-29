@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ sealed class AuthState {
 class AuthViewModel : ViewModel() {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    private val firestore    = FirebaseFirestore.getInstance()
     val authState: StateFlow<AuthState> = _authState
 
     // SharedFlow 用於傳遞一次性導航事件
@@ -45,11 +47,20 @@ class AuthViewModel : ViewModel() {
         _authState.value = AuthState.Loading
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
-                _authState.value = AuthState.Success(result.user!!)
-                viewModelScope.launch {
-                    _navigationEvent.emit(Unit)
-                }
-                // 這裡未來可以額外設定例如用戶等級的初始化資料
+                val user = result.user!!
+                // 1) 初始化 Firestore 裡的 users/{uid} 文件
+                firestore.collection("users")
+                    .document(user.uid)
+                    .set(
+                        mapOf(
+                            "selectedBadges"    to emptyList<String>(),
+                            "selectedPet"       to null,
+                            "selectedBackground" to null
+                        )
+                    )
+                // 2) 繼續後面的流程
+                _authState.value = AuthState.Success(user)
+                viewModelScope.launch { _navigationEvent.emit(Unit) }
             }
             .addOnFailureListener { exception ->
                 _authState.value = AuthState.Error(exception.message ?: "Unknown error")

@@ -15,14 +15,6 @@ class HealthRepository(context: Context) {
     private val healthConnectSource = HealthConnectSource(context)
     private val stepCounterSensor = StepCounterSensor(context)
 
-    // Room Database
-//    private val db = Room.databaseBuilder(
-//        context,
-//        AppDatabase::class.java,
-//        "wellipet-db"
-//    ).build()
-//    private val stepsDao = db.stepsDao()
-
     suspend fun addSteps(steps: Long): Boolean {
         return healthConnectSource.insertSteps(steps)
     }
@@ -60,17 +52,4 @@ class HealthRepository(context: Context) {
         return healthConnectSource.readHistoricalHydration(days)
     }
 
-    // 存入感應器讀取到的步數歷史記錄
-//    suspend fun storeSteps(steps: Long) = withContext(Dispatchers.IO) {
-//        val stepCount = StepCount(
-//            steps = steps,
-//            createdAt = Instant.now().toString()
-//        )
-//        stepsDao.insertAll(stepCount)
-//    }
-
-    // 載入全部歷史資料 (或根據需求變更查詢條件)
-//    suspend fun loadHistoricalSteps(): List<StepCount> = withContext(Dispatchers.IO) {
-//        stepsDao.getAll()
-//    }
 }

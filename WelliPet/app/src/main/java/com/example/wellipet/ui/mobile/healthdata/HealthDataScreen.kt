@@ -1,7 +1,6 @@
 // File: com/example/wellipet/ui/mobile/healthdata/HealthDataScreen.kt
 package com.example.wellipet.ui.mobile.healthdata
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,8 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.material3.CardDefaults.cardElevation
 import androidx.compose.material3.CardDefaults.cardColors
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +26,6 @@ import com.example.wellipet.ui.components.CuteTopBar
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthDataScreen(onBackClick: () -> Unit) {
     val vm: HealthDataViewModel = viewModel()
