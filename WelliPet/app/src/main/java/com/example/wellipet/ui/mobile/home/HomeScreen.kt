@@ -5,6 +5,7 @@ import RequestLocationPermission
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -122,6 +123,8 @@ fun HomeScreen(
     // 從 StoreViewModel 中讀取永久保存的選擇（DataStore）
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
+    val selectedBadges by storeViewModel.selectedBadges.collectAsState()
+
     val petRes = selectedPet ?: R.drawable.dog      // 預設寵物圖片
     val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
 
@@ -132,31 +135,42 @@ fun HomeScreen(
             .build()
     }
 
+    // 將 badge ID 轉回 drawable resource
+    val badgeResList = remember(selectedBadges) {
+        selectedBadges.mapNotNull { id ->
+            val res = context.resources.getIdentifier(id, "drawable", context.packageName)
+            res.takeIf { it != 0 }
+        }
+    }
+
     Scaffold(
-        topBar = { CuteTopBar(
-            title     = "WelliPet",
-            fontSize  = 32.sp,
-            titleColor= Color(0xFF6B3E1E),
-            gradient  = Brush.horizontalGradient(
-                listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
-            ),
-            elevation = 4f
-        ) },
+        topBar = {
+            CuteTopBar(
+                title     = "WelliPet",
+                fontSize  = 32.sp,
+                titleColor= Color(0xFF6B3E1E),
+                gradient  = Brush.horizontalGradient(
+                    listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
+                ),
+                elevation = 4f
+            )
+        },
         bottomBar = { BottomNavigationBar(navController) }
-    ) { innerPadding ->
+    ) { padding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(padding)
                 .fillMaxSize()
         ) {
-            // 背景圖：根據 StoreViewModel 選擇更新
+            // 背景
             AsyncImage(
                 model = backgroundRes,
                 contentDescription = "Background",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-            // 天氣資訊區塊（固定位置）
+
+            // 天氣卡片
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -167,52 +181,49 @@ fun HomeScreen(
                         city = weatherResponse!!.name,
                         temp = weatherResponse!!.main.temp,
                         weatherList = weatherResponse!!.weather,
-                        modifier = Modifier.fillMaxWidth(0.6f) // 卡片寬度調整
+                        modifier = Modifier.width(200.dp)
                     )
-                } else {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.Black.copy(alpha = 0.5f)
-                        ),
-                        elevation = CardDefaults.cardElevation(8.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = "Loading weather...",
-                            modifier = Modifier
-                                .padding(12.dp),
-                            color = Color.White
-                        )
-                    }
                 }
             }
 
-            // 中央顯示寵物內容
+            // 寵物展示
             Column(
-                modifier = Modifier.fillMaxSize()
-                .padding(top = 40.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 60.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 AsyncImage(
                     model = petRes,
                     imageLoader = gifImageLoader,
-                    contentDescription = "Selected Pet",
+                    contentDescription = "Pet",
                     modifier = Modifier
                         .size(300.dp)
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
-                Text(
-                    text = "Feeling Happy",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Daily Health progress: Steps / Sleep / Water ...",
-                    color = Color.White
-                )
+            }
+
+            // 已選徽章列
+            if (badgeResList.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(40.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    badgeResList.forEach { resId ->
+                        Image(
+                            painter = painterResource(id = resId),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(88.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
             }
         }
     }

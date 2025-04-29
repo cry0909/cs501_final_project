@@ -111,7 +111,7 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                 modifier  = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text("Today's Steps：$steps", style = MaterialTheme.typography.titleLarge)
+                    Text("Total Steps (Past 24hrs)：$steps", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(8.dp))
                     Text("Steps History", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(8.dp))

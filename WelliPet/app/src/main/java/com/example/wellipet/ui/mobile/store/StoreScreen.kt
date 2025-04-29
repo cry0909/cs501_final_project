@@ -5,24 +5,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.border
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Brush
@@ -31,9 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.wellipet.R
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wellipet.ui.components.CuteTopBar
-import com.example.wellipet.ui.mobile.store.StoreViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewModel()) {
     // 寵物圖片資源列表
@@ -51,10 +51,21 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
         R.drawable.bg_city,
         R.drawable.bg_avenue
     )
+    // 資源 ID 列表，請替換成你自己 16 顆徽章的 R.drawable.xxx
+    val allBadges = listOf(
+        R.drawable.hydration_novice, R.drawable.hydration_expert, R.drawable.hydration_master, R.drawable.hydration_legend,
+        R.drawable.step_beginner, R.drawable.jogger, R.drawable.step_sprinter, R.drawable.step_champion, R.drawable.step_legend,
+        R.drawable.sleep_enthuaiast, R.drawable.dream_weaver, R.drawable.sleep_master, R.drawable.sleep_legend,
+        R.drawable.daily_triathlete, R.drawable.weekly_triathlete, R.drawable.ultimate_triathlete
+    )
+
+    val ctx = LocalContext.current
 
     // 從 StoreViewModel 中取得當前選擇 (DataStore 保存的值)
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
+    val unlockedBadge by storeViewModel.unlockedBadges.collectAsState()
+    val selectedBadge by storeViewModel.selectedBadges.collectAsState()
 
     Scaffold(
         topBar = {
@@ -123,6 +134,72 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             if (selectedBackground != null) {
                 Text(
                     text = "Selected Background: $selectedBackground",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            // --- 徽章選擇 ---
+            Text("Choose Badges (Up to 3)", style = MaterialTheme.typography.titleMedium)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    // 大約顯示 3 列：80dp * 3 + 12dp * 2 = 264dp，再多點 padding
+                    .height(280.dp)
+            )  {
+                items(allBadges) { badgeRes ->
+                    // 將資源 ID 轉成唯一字串 ID，用於 toggleBadge
+                    val badgeId = ctx.resources.getResourceEntryName(badgeRes)
+                    val isUnlocked = unlockedBadge.contains(badgeId)
+                    val isSelected = selectedBadge.contains(badgeId)
+
+                    // 找灰階版 resource id
+                    val grayRes = ctx.resources.getIdentifier(
+                        "${badgeId}_locked", "drawable", ctx.packageName
+                    )
+                    // 決定顯示哪個圖
+                    val displayRes = if (isUnlocked) badgeRes else grayRes
+
+                    Card(
+                        modifier = Modifier
+                            .size(80.dp)
+                            // TODO: 在 unlock 完成後，這裡可以根據是否 unlock 來决定 enabled/disabled
+                            .clickable(enabled = isUnlocked){ storeViewModel.toggleBadge(badgeId) }
+                            .then(
+                                if (isSelected)
+                                    Modifier.border(
+                                        width = 3.dp,
+                                        color = Color(0xFF6B3E1E),
+                                        shape = CircleShape
+                                    )
+                                else Modifier
+                            ),
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = if (isSelected) CardDefaults.cardElevation(6.dp) else CardDefaults.cardElevation(2.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = displayRes),
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(68.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            if (selectedBadge.isNotEmpty()) {
+                Text(
+                    "Selected badges: ${selectedBadge.joinToString()}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

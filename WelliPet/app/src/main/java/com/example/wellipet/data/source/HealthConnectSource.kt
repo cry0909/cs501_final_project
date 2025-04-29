@@ -15,7 +15,8 @@ import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
+import java.time.LocalDate
+import java.time.ZoneId
 
 class HealthConnectSource(context: Context) {
     private val healthConnectClient = HealthConnectClient.getOrCreate(context)
@@ -45,7 +46,7 @@ class HealthConnectSource(context: Context) {
     suspend fun readSteps(): Long = withContext(Dispatchers.IO) {
         try {
             val now = Instant.now()
-            val startTime = now.minus(Duration.ofHours(1))
+            val startTime = now.minus(Duration.ofHours(24))
             val request = ReadRecordsRequest(
                 recordType = StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.between(startTime, now)
@@ -127,43 +128,49 @@ class HealthConnectSource(context: Context) {
 
     // 讀取歷史步數：取得過去 N 天每天的總步數
     suspend fun readHistoricalSteps(days: Int = 30): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
         val results = mutableListOf<Pair<String, Long>>()
-        val now = Instant.now()
-        // 從今天起往回
+
         for (i in 0 until days) {
-            val dayStart = now.minus(Duration.ofDays(i.toLong())).truncatedTo(ChronoUnit.DAYS)
-            val dayEnd = dayStart.plus(Duration.ofDays(1))
+            val date = today.minusDays(i.toLong())
+            // 這一天的開始：當地時區的 yyyy-MM-ddT00:00
+            val startInstant = date.atStartOfDay(zone).toInstant()
+            // 這一天的結束（不含）：next day 00:00
+            val endInstant = date.plusDays(1).atStartOfDay(zone).toInstant()
+
             val request = ReadRecordsRequest(
                 recordType = StepsRecord::class,
-                timeRangeFilter = TimeRangeFilter.between(dayStart, dayEnd)
+                timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
             )
             val response = healthConnectClient.readRecords(request)
             val totalSteps = response.records.sumOf { it.count }
-            // 取前 10 個字元表示日期 (yyyy-MM-dd)
-            results.add(Pair(dayStart.toString().substring(0,10), totalSteps))
+            results.add(Pair(date.toString(), totalSteps))
         }
-        results.reverse() // 讓最早的在前
+        results.reverse() // 最早的在前
         results
     }
 
     // 讀取歷史睡眠：取得過去 N 天每天的總睡眠秒數
     suspend fun readHistoricalSleep(days: Int = 7): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
         val results = mutableListOf<Pair<String, Long>>()
-        val now = Instant.now()
+
         for (i in 0 until days) {
-            val dayStart = now.minus(Duration.ofDays(i.toLong())).truncatedTo(ChronoUnit.DAYS)
-            val dayEnd = dayStart.plus(Duration.ofDays(1))
+            val date = today.minusDays(i.toLong())
+            val start = date.atStartOfDay(zone).toInstant()
+            val end   = date.plusDays(1).atStartOfDay(zone).toInstant()
+
             val request = ReadRecordsRequest(
                 recordType = SleepSessionRecord::class,
-                timeRangeFilter = TimeRangeFilter.between(dayStart, dayEnd)
+                timeRangeFilter = TimeRangeFilter.between(start, end)
             )
             val response = healthConnectClient.readRecords(request)
-            var totalSleepSeconds = 0L
-            response.records.forEach { record ->
-                val duration = Duration.between(record.startTime, record.endTime).seconds
-                if (duration > 0) totalSleepSeconds += duration
+            val totalSeconds = response.records.sumOf { record ->
+                Duration.between(record.startTime, record.endTime).seconds
             }
-            results.add(Pair(dayStart.toString().substring(0, 10), totalSleepSeconds))
+            results.add(Pair(date.toString(), totalSeconds))
         }
         results.reverse()
         results
@@ -171,21 +178,22 @@ class HealthConnectSource(context: Context) {
 
     // 讀取歷史飲水：取得過去 N 天每天的總飲水量（毫升）
     suspend fun readHistoricalHydration(days: Int = 7): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
+        val zone = ZoneId.systemDefault()
+        val today = LocalDate.now(zone)
         val results = mutableListOf<Pair<String, Long>>()
-        val now = Instant.now()
+
         for (i in 0 until days) {
-            val dayStart = now.minus(Duration.ofDays(i.toLong())).truncatedTo(ChronoUnit.DAYS)
-            val dayEnd = dayStart.plus(Duration.ofDays(1))
+            val date = today.minusDays(i.toLong())
+            val start = date.atStartOfDay(zone).toInstant()
+            val end   = date.plusDays(1).atStartOfDay(zone).toInstant()
+
             val request = ReadRecordsRequest(
                 recordType = HydrationRecord::class,
-                timeRangeFilter = TimeRangeFilter.between(dayStart, dayEnd)
+                timeRangeFilter = TimeRangeFilter.between(start, end)
             )
             val response = healthConnectClient.readRecords(request)
-            var totalHydrationMl = 0L
-            response.records.forEach { record ->
-                totalHydrationMl += record.volume.inMilliliters.toLong()
-            }
-            results.add(Pair(dayStart.toString().substring(0, 10), totalHydrationMl))
+            val total = response.records.sumOf { it.volume.inMilliliters.toLong() }
+            results.add(Pair(date.toString(), total))
         }
         results.reverse()
         results
