@@ -48,6 +48,10 @@ class HealthRepository(context: Context) {
     suspend fun addHydration(hydrationML: Long): Boolean {
         return healthConnectSource.addHydration(hydrationML)
     }
+    // for pet_status check
+    suspend fun getHydrationLast(hours: Long) = healthConnectSource.readHydration(hours)
+    suspend fun getStepsLast(hours: Long)     = healthConnectSource.readSteps(hours)
+
 
     // 歷史資料函式
     suspend fun getHistoricalSteps(days: Int): List<Pair<String,Long>> {

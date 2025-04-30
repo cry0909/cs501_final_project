@@ -38,6 +38,7 @@ import com.example.wellipet.api.WeatherInfo
 import com.example.wellipet.ui.components.CuteTopBar
 import com.example.wellipet.data.AuthPreferences.setRememberMe
 import com.example.wellipet.navigation.Screen
+import com.example.wellipet.ui.model.PetGifMapper
 import kotlinx.coroutines.launch
 
 
@@ -136,9 +137,13 @@ fun HomeScreen(
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
     val selectedBadges by storeViewModel.selectedBadges.collectAsState()
+    val petStatus      by homeViewModel.petStatus.collectAsState()
 
-    val petRes = selectedPet ?: R.drawable.dog_sleep      // 預設寵物圖片
     val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
+    val gifRes = PetGifMapper.get(
+        selectedPet ?: R.drawable.pet_dog,
+        petStatus   ?: "happy"
+    )
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -258,7 +263,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 AsyncImage(
-                    model = petRes,
+                    model = gifRes,
                     imageLoader = gifImageLoader,
                     contentDescription = "Pet",
                     modifier = Modifier

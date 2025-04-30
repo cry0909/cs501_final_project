@@ -62,6 +62,11 @@ class FirebaseUserRepository {
             (raw as? List<*>)?.filterIsInstance<String>()?.toSet()
         }.map { it ?: emptySet() }
 
+    /** petStatus 流 */
+    fun petStatusFlow(): Flow<String?> =
+        listenField("petStatus") { raw -> raw as? String }
+            .map { it ?: "happy" } // 默认 happy
+
     /** 更新 helper **/
     private suspend fun updateField(field: String, value: Any?) {
         userDoc().update(field, value).await()
@@ -82,4 +87,8 @@ class FirebaseUserRepository {
     /** 保存已解锁徽章 */
     suspend fun saveUnlockedBadges(badges: Set<String>) =
         updateField("unlockedBadges", badges.toList())
+
+    /** 保存 petStatus **/
+    suspend fun savePetStatus(status: String) =
+        updateField("petStatus", status)
 }

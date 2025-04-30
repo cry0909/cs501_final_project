@@ -56,7 +56,8 @@ class AuthViewModel : ViewModel() {
                             "selectedBadges"    to emptyList<String>(),
                             "selectedPet"       to null,
                             "selectedBackground" to null,
-                            "unlockedBadges"      to emptyList<String>()
+                            "unlockedBadges"      to emptyList<String>(),
+                            "petStatus"          to "happy"
                         )
                     )
                 // 2) 繼續後面的流程

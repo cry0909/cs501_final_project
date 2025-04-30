@@ -39,10 +39,10 @@ class HealthConnectSource(context: Context) {
         lastHistoricalHydrationCache.clear()
     }
 
-    suspend fun readSteps(): Long = withContext(Dispatchers.IO) {
+    suspend fun readSteps(hours: Long = 24): Long = withContext(Dispatchers.IO) {
         try {
             val now = Instant.now()
-            val startTime = now.minus(Duration.ofHours(24))
+            val startTime = now.minus(Duration.ofHours(hours))
             val request = ReadRecordsRequest(
                 recordType = StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.between(startTime, now)
@@ -95,10 +95,10 @@ class HealthConnectSource(context: Context) {
 
 
     // 讀取飲水資料：過去 24 小時內所有 HydrationRecord 的水量總和（假設以毫升計算）
-    suspend fun readHydration(): Long = withContext(Dispatchers.IO) {
+    suspend fun readHydration(hours: Long = 24): Long = withContext(Dispatchers.IO) {
         try {
             val now = Instant.now()
-            val startTime = now.minus(Duration.ofHours(24))
+            val startTime = now.minus(Duration.ofHours(hours))
             val req = ReadRecordsRequest(
                 recordType = HydrationRecord::class,
                 timeRangeFilter = TimeRangeFilter.between(startTime, now)
