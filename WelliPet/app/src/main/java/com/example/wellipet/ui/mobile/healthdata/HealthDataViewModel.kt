@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class HealthDataViewModel(application: Application) : AndroidViewModel(application) {
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
     private val repository = HealthRepository(application)
 
@@ -39,21 +41,25 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
     // 讀取 Health Connect 上的所有數據（步數、睡眠、飲水）
     fun readHealthData(rangeDays: Int = 7) {
         viewModelScope.launch {
-            _currentSteps.value = repository.getSteps()
-            _currentSleep.value = repository.readSleep()
-            _currentHydration.value = repository.readHydration()
-            _historicalSteps.value = repository.getHistoricalSteps(rangeDays)
-            _historicalSleep.value = repository.getHistoricalSleep(rangeDays)
-            _historicalHydration.value = repository.getHistoricalHydration(rangeDays)
+            try {
+                repository.clearHistoryCache()
+
+                _currentSteps.value = repository.getSteps()
+                _currentSleep.value = repository.readSleep()
+                _currentHydration.value = repository.readHydration()
+                _historicalSteps.value = repository.getHistoricalSteps(rangeDays)
+                _historicalSleep.value = repository.getHistoricalSleep(rangeDays)
+                _historicalHydration.value = repository.getHistoricalHydration(rangeDays)
+            } catch (e: Exception) {
+                _errorMessage.value = "load health data failed"
+            }
         }
     }
 
     fun addHydration(hydrationMl: Long) {
         viewModelScope.launch {
             if (repository.addHydration(hydrationMl)) {
-                // 更新當前飲水與歷史飲水
-                _currentHydration.value = repository.readHydration()
-                _historicalHydration.value = repository.getHistoricalHydration(7)
+                readHealthData(7)
             }
         }
     }
@@ -67,19 +73,7 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-//    fun storeSensorSteps() {
-//        viewModelScope.launch {
-//            // 存入目前感應器讀取到的步數至資料庫
-//            val steps = repository.getSensorSteps()
-//            repository.storeSteps(steps)
-//            // 更新當前步數狀態
-//            _currentSteps.value = steps
-//        }
-//    }
-
-//    fun loadHistoricalData() {
-//        viewModelScope.launch {
-//            _historicalSteps.value = repository.loadHistoricalSteps()
-//        }
-//    }
+    fun clearError() {
+        _errorMessage.value = null
+    }
 }

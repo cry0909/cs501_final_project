@@ -67,7 +67,7 @@ fun AppNavHost() {
             )
         }
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController)
         }
         composable(Screen.HealthData.route) {
             HealthDataScreen(onBackClick = { navController.popBackStack() })

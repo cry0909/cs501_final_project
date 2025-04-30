@@ -33,7 +33,8 @@ fun CuteTopBar(
     gradient: Brush = Brush.horizontalGradient(
         colors = listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
     ),
-    elevation: Float = 2f
+    elevation: Float = 2f,
+    actions: @Composable RowScope.() -> Unit = {}      // ← 新增 actions slot
 ) {
     // 1. 準備 GoogleFont
     val pressStart = GoogleFont("Press Start 2P")
@@ -67,6 +68,7 @@ fun CuteTopBar(
                 color      = titleColor
             )
         },
+        actions = actions,
         colors = TopAppBarDefaults.smallTopAppBarColors(
             containerColor = Color.Transparent
         )

@@ -55,7 +55,8 @@ class AuthViewModel : ViewModel() {
                         mapOf(
                             "selectedBadges"    to emptyList<String>(),
                             "selectedPet"       to null,
-                            "selectedBackground" to null
+                            "selectedBackground" to null,
+                            "unlockedBadges"      to emptyList<String>()
                         )
                     )
                 // 2) 繼續後面的流程
@@ -65,5 +66,9 @@ class AuthViewModel : ViewModel() {
             .addOnFailureListener { exception ->
                 _authState.value = AuthState.Error(exception.message ?: "Unknown error")
             }
+    }
+
+    fun signOut() {
+        FirebaseAuth.getInstance().signOut()
     }
 }

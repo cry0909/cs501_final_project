@@ -15,6 +15,9 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     private val healthRepo = HealthRepository(application)
     private val badgeCalc  = BadgeCalculator(healthRepo)
 
+    // Firestore 中持久化的解锁列表
+    private val persistedUnlockedFlow = userRepo.unlockedBadgesFlow()
+
 
     /** 已選寵物資源 ID */
     val selectedPet: StateFlow<Int?> =
@@ -38,8 +41,29 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     init {
         // 啟動時計算一次
         viewModelScope.launch {
-            val unlocked = badgeCalc.calculateUnlocked()
-            _unlockedBadges.value = unlocked
+            // 先取后端已保存的
+            val persisted = persistedUnlockedFlow.first()
+
+            // 再算一遍当前符合条件的
+            val current = badgeCalc.calculateUnlocked()
+
+            // 并集：保留以往 + 新达标的
+            val merged = persisted union current
+
+            // 如果有新增，就写回 Firestore
+            if (merged != persisted) {
+                userRepo.saveUnlockedBadges(merged)
+            }
+
+            // 更新 UI
+            _unlockedBadges.value = merged
+
+            // 继续监听后端改动，保持同步
+            persistedUnlockedFlow
+                .drop(1) // 跳过已经处理过的那一次
+                .collect { updated ->
+                    _unlockedBadges.value = updated
+                }
         }
     }
     /** 選擇寵物 */

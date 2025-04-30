@@ -48,9 +48,9 @@ fun SleepBarChart(
                 val colors = data.map { pair ->
                     val hours = pair.second.toFloat() / 3600f
                     when {
-                        hours >= 7f -> androidx.compose.ui.graphics.Color.Green.toArgb()
-                        hours in 5f..7f -> androidx.compose.ui.graphics.Color(255, 165, 0).toArgb()
-                        else -> androidx.compose.ui.graphics.Color.Red.toArgb()
+                        hours >= 7f -> androidx.compose.ui.graphics.Color(160, 232, 121, 255).toArgb()
+                        hours in 5f..7f -> androidx.compose.ui.graphics.Color(241, 143, 56, 255).toArgb()
+                        else -> androidx.compose.ui.graphics.Color(238, 54, 54, 255).toArgb()
                     }
                 }
                 // 使用不帶 context 的 setColors() 方法

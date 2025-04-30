@@ -1,9 +1,10 @@
 // File: com/example/wellipet/ui/components/StepsLineChart.kt
 package com.example.wellipet.ui.components
 
-import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.LineChart
@@ -48,10 +49,10 @@ fun StepsLineChart(
                 Entry(index.toFloat(), pair.second.toFloat())
             }
             val dataSet = LineDataSet(entries, "Steps History").apply {
-                color = Color.BLUE
+                color = Color(245, 148, 110, 255).toArgb()
                 setDrawCircles(true)
                 circleRadius = 4f
-                setCircleColor(Color.RED)
+                setCircleColor(Color(101, 31, 19, 255).toArgb())
                 lineWidth = 2f
                 valueTextSize = 10f
                 setDrawValues(false)

@@ -114,8 +114,8 @@ val allBadgeDefinitions = listOf(
         id = "sleep_enthusiast",
         category = BadgeCategory.Sleep,
         unlock = { repo -> repo.readSleep() >= 7 * 3600L },
-        unlockedIconRes = R.drawable.sleep_enthuaiast,
-        lockedIconRes   = R.drawable.sleep_enthuaiast_locked
+        unlockedIconRes = R.drawable.sleep_enthusiast,
+        lockedIconRes   = R.drawable.sleep_enthusiast_locked
     ),
     BadgeDefinition(
         id = "dream_weaver",

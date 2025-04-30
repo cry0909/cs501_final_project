@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,10 +31,15 @@ import coil.decode.ImageDecoderDecoder
 import com.example.wellipet.R
 import com.example.wellipet.ui.components.BottomNavigationBar
 import com.example.wellipet.ui.mobile.store.StoreViewModel
+import com.example.wellipet.ui.auth.AuthViewModel
 import com.example.wellipet.utils.getWeatherIconRes
 import com.example.wellipet.utils.getSuggestionText
 import com.example.wellipet.api.WeatherInfo
 import com.example.wellipet.ui.components.CuteTopBar
+import com.example.wellipet.data.AuthPreferences.setRememberMe
+import com.example.wellipet.navigation.Screen
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun WeatherCard(
@@ -112,7 +122,9 @@ fun WeatherCard(
 fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = viewModel(),
-    storeViewModel: StoreViewModel = viewModel()   // 請確保此 viewModel 屬於共享範圍
+    storeViewModel: StoreViewModel = viewModel(),
+    authViewModel: AuthViewModel = viewModel(),    // 登出用
+
 ) {
     RequestLocationPermission { granted ->
         // HomeViewModel 已經在 init 中處理位置更新與天氣刷新
@@ -125,10 +137,12 @@ fun HomeScreen(
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
     val selectedBadges by storeViewModel.selectedBadges.collectAsState()
 
-    val petRes = selectedPet ?: R.drawable.dog      // 預設寵物圖片
+    val petRes = selectedPet ?: R.drawable.dog_sleep      // 預設寵物圖片
     val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     val gifImageLoader = remember {
         ImageLoader.Builder(context)
             .components { add(ImageDecoderDecoder.Factory()) }
@@ -143,6 +157,12 @@ fun HomeScreen(
         }
     }
 
+    var menuExpanded by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+
+    val menuBg = Color(0xFFF8E0CB)
+    val itemText = Color(0xFF6B3E1E)
+
     Scaffold(
         topBar = {
             CuteTopBar(
@@ -152,7 +172,50 @@ fun HomeScreen(
                 gradient  = Brush.horizontalGradient(
                     listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
                 ),
-                elevation = 4f
+                elevation = 4f,
+
+                actions = {
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                    }
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        modifier = Modifier
+                            .background(menuBg)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("About", color = itemText) },
+                            onClick = {
+                                menuExpanded = false
+                                showAboutDialog = true
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Share", color = itemText) },
+                            onClick = {
+                                menuExpanded = false
+                                // TODO: 呼叫分享 Intent
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Logout", color = itemText) },
+                            onClick = {
+                                menuExpanded = false
+                                scope.launch {
+                                    // 1) 清除“记住我”
+                                    context.setRememberMe(false)
+                                    // 2) Firebase 登出
+                                    authViewModel.signOut()
+                                    // 3) 导航回 Login，并清空回退栈
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
             )
         },
         bottomBar = { BottomNavigationBar(navController) }
@@ -225,6 +288,57 @@ fun HomeScreen(
                     }
                 }
             }
-        }
+            if (showAboutDialog) {
+                val scrollState = rememberScrollState()
+                AlertDialog(
+                    onDismissRequest = { showAboutDialog = false },
+                    containerColor = Color(0xFFF8E0CB),
+                    title = { Text("About WelliPet") },
+                    text = {
+                        // 限制高度到 300.dp，超过就滚动
+                        Box(
+                            Modifier
+                                .heightIn(max = 300.dp)
+                                .verticalScroll(scrollState)
+                        ) {
+                            Text(
+                                """
+                    WelliPet v1.0
+
+                    WelliPet is a virtual pet companion that grows alongside your healthy habits—every glass of water you drink, every step you take, and every night of restful sleep helps your pet thrive. As you hit your hydration, activity, and sleep goals, you’ll unlock fun badges, and discover new customization options to dress up and decorate your pet’s world (This feature coming soon).
+
+                    According to the World Health Organization’s recommendations, we encourage players to achieve the following daily goals: 5,000 steps, 7 hours of sleep, and 2,000 ml of water intake. Let’s work together for our health!
+                    
+                    Badges:
+                    💧 Hydration Novice (Hydration): Single-day hydration ≥ 2000 ml
+                    🚰 Hydration Expert (Hydration): 7 consecutive days with daily hydration ≥ 2000 ml
+                    🌊 Hydration Master (Hydration): 14 consecutive days with daily hydration ≥ 2000 ml
+                    🔱 Hydration Legend (Hydration): 30 consecutive days with daily hydration ≥ 2000 ml
+
+                    👟 Step Beginner (Steps): Single-day step count ≥ 5,000 steps
+                    🏃‍♂️ Jogger (Steps): Single-day step count ≥ 10,000 steps
+                    🥇 Step Sprinter (Steps): 7 consecutive days with daily step count ≥ 10,000 steps
+                    🏅 Step Champion (Steps): 14 consecutive days with daily step count ≥ 10,000 steps
+                    🏆 Step Legend (Steps): 30 consecutive days with daily step count ≥ 10,000 steps
+
+                    🛌 Sleep Enthusiast (Sleep): Single-day sleep duration ≥ 7 hours
+                    🌙 Dream Weaver (Sleep): 7 consecutive days with daily sleep ≥ 7 hours
+                    ⭐ Sleep Master (Sleep): 14 consecutive days with daily sleep ≥ 7 hours
+                    🌌 Sleep Legend (Sleep): 30 consecutive days with daily sleep ≥ 7 hours
+
+                    🤸‍♂️ Daily Triathlete (Combined): Single-day completion of Hydration Novice, Jogger, and Sleep Enthusiast
+                    🏅 Weekly Triathlete (Combined): 7 consecutive days completing Hydration Novice, Jogger, and Sleep Enthusiast
+                    👑 Ultimate Triathlete (Combined): 30 consecutive days completing Hydration Novice, Jogger, and Sleep Enthusiast
+                    """.trimIndent()
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showAboutDialog = false }) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }        }
     }
 }

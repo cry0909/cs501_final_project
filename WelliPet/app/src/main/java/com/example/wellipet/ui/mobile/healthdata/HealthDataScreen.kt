@@ -22,6 +22,9 @@ import com.example.wellipet.ui.components.StepsLineChart
 import com.example.wellipet.ui.components.SleepBarChart
 import com.example.wellipet.ui.components.HydrationBarChart
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.wellipet.ui.components.CuteTopBar
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,11 +40,29 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
     val histSleep by vm.historicalSleep.collectAsState()
     val histHyd by vm.historicalHydration.collectAsState()
 
+    val errorMessage by vm.errorMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // 每次 errorMessage 变更都会弹一次
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            vm.clearError()
+        }
+    }
+
     // 範圍選擇
     var selectedDays by remember { mutableStateOf(7) }
+    val lifecycleOwner = LocalLifecycleOwner.current
     val daysOptions = listOf(7, 14, 30)
     var expandRange by remember { mutableStateOf(false) }
-    LaunchedEffect(selectedDays) { vm.readHealthData(selectedDays) }
+    // 在 resume 时、或天数变更时自动刷新
+    LaunchedEffect(lifecycleOwner, selectedDays) {
+        // 监听生命周期
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            vm.readHealthData(selectedDays)
+        }
+    }
 
     // 手動輸入水量
     var inputHyd by remember { mutableStateOf("") }
@@ -55,7 +76,8 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                 elevation = 4f,
                 onBackClick = onBackClick
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -183,8 +205,6 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
         }
     }
 }
-
-// 如果你還沒定義，記得引入：
 
 
 

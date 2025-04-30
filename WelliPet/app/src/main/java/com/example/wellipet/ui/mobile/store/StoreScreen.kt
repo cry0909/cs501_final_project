@@ -55,7 +55,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
     val allBadges = listOf(
         R.drawable.hydration_novice, R.drawable.hydration_expert, R.drawable.hydration_master, R.drawable.hydration_legend,
         R.drawable.step_beginner, R.drawable.jogger, R.drawable.step_sprinter, R.drawable.step_champion, R.drawable.step_legend,
-        R.drawable.sleep_enthuaiast, R.drawable.dream_weaver, R.drawable.sleep_master, R.drawable.sleep_legend,
+        R.drawable.sleep_enthusiast, R.drawable.dream_weaver, R.drawable.sleep_master, R.drawable.sleep_legend,
         R.drawable.daily_triathlete, R.drawable.weekly_triathlete, R.drawable.ultimate_triathlete
     )
 
@@ -87,7 +87,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 寵物選擇區域
-            Text("Select Your Pet", style = MaterialTheme.typography.titleMedium)
+            Text("Select Your Pet", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(petImages) { petRes ->
                     Card(
@@ -113,7 +113,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             }
 
             // 背景選擇區域
-            Text("Select Background", style = MaterialTheme.typography.titleMedium)
+            Text("Select Background", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(backgroundImages) { bgRes ->
                     Card(
@@ -138,7 +138,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                 )
             }
             // --- 徽章選擇 ---
-            Text("Choose Badges (Up to 3)", style = MaterialTheme.typography.titleMedium)
+            Text("Choose Badges (Up to 3)", style = MaterialTheme.typography.titleLarge)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
