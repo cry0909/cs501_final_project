@@ -44,5 +44,9 @@
             </intent-filter>
         </activity>
     </application>
+    <!-- Check if Health Connect is installed -->
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
 
 </manifest>

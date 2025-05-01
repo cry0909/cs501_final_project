@@ -65,7 +65,10 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
     LaunchedEffect(lifecycleOwner, selectedDays) {
         // 监听生命周期
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            // 1) 先刷新所有 Health 数据（包含步数/睡眠/饮水）
             vm.readHealthData(selectedDays)
+            // 2) 紧接着根据最新数据立即刷新 pet 状态
+            homeViewModel.refreshPetStatusNow()
         }
     }
 

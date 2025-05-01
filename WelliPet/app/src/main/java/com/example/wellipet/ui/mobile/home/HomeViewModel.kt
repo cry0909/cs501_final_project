@@ -67,28 +67,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { computeAndSavePetStatus() }
     }
 
-    init {
+    fun loadWeather() {
         viewModelScope.launch {
-        // 每當位置更新時自動抓取新的天氣資訊
-            locationRepository.getLocationFlow().collectLatest { coordinates ->
-                if (coordinates != null) {
-                    val (lat, lon) = coordinates
-                    try {
-                        val response =
-                            weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
-                        _weatherResponse.value = response
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+            locationRepository.getLocationFlow().collect { coords ->
+                val response = try {
+                    if (coords != null) {
+                        val (lat, lon) = coords
+                        weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
+                    } else {
+                        weatherService.getCurrentWeatherByCity("Beijing", apiKey)
                     }
-                } else {
-                    // 如果無法取得位置，使用預設城市查詢（例如 "Beijing"）
-                    try {
-                        val response = weatherService.getCurrentWeatherByCity("Beijing", apiKey)
-                        _weatherResponse.value = response
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+                } catch (e: Exception) {
+                    null
                 }
+                _weatherResponse.value = response
             }
         }
     }

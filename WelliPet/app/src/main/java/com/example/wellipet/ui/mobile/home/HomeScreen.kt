@@ -2,6 +2,8 @@
 package com.example.wellipet.ui.mobile.home
 
 import RequestLocationPermission
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,7 +42,7 @@ import com.example.wellipet.data.AuthPreferences.setRememberMe
 import com.example.wellipet.navigation.Screen
 import com.example.wellipet.ui.model.PetGifMapper
 import kotlinx.coroutines.launch
-
+import android.Manifest
 
 @Composable
 fun WeatherCard(
@@ -168,6 +170,26 @@ fun HomeScreen(
     val menuBg = Color(0xFFF8E0CB)
     val itemText = Color(0xFF6B3E1E)
 
+    // 1) 记住一个状态：权限是否已授予
+    var hasLocationPermission by remember { mutableStateOf(false) }
+
+    // 2) 创建一个 launcher 去请求 FINE_LOCATION 权限
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasLocationPermission = granted
+        if (granted) {
+            // 一旦用户同意，立刻触发天气加载
+            homeViewModel.loadWeather()
+        }
+    }
+
+    // 3) 在首次 Composition 时马上弹权限请求（只会调用一次）
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+
     Scaffold(
         topBar = {
             CuteTopBar(
@@ -238,17 +260,27 @@ fun HomeScreen(
                 contentScale = ContentScale.Crop
             )
 
-            // 天氣卡片
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp)
-            ) {
-                if (weatherResponse != null) {
+            if (!hasLocationPermission) {
+                // 权限未给出时
+                Text(
+                    "Turn on location permission to get weather!",
+                    modifier = Modifier.align(Alignment.TopCenter).padding(16.dp),
+                    color = Color.Red
+                )
+            }
+
+            // 一旦有权限，再显示天气卡片
+            val weather by homeViewModel.weatherResponse.collectAsState()
+            if (weather != null && hasLocationPermission) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(16.dp)
+                ) {
                     WeatherCard(
-                        city = weatherResponse!!.name,
-                        temp = weatherResponse!!.main.temp,
-                        weatherList = weatherResponse!!.weather,
+                        city = weather!!.name,
+                        temp = weather!!.main.temp,
+                        weatherList = weather!!.weather,
                         modifier = Modifier.width(200.dp)
                     )
                 }
