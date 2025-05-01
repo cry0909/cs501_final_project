@@ -1,6 +1,7 @@
 // File: com/example/wellipet/ui/mobile/healthdata/HealthDataScreen.kt
 package com.example.wellipet.ui.mobile.healthdata
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -96,7 +97,7 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
         ) {
             // 1. 日期範圍
             Card(
-                colors    = cardColors(containerColor = Color(0xFFE6E1FC)),
+                colors    = cardColors(containerColor = Color(0xFFF8E5C5)),
                 elevation = cardElevation(defaultElevation = 4.dp),
                 shape     = RoundedCornerShape(12.dp),
                 modifier  = Modifier.fillMaxWidth()
@@ -109,12 +110,19 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                 ) {
                     Text("Selected Range: ", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { expandRange = true }) {
+                    Button(
+                        onClick = { expandRange = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4F2603),    // button bgColor
+                            contentColor = Color(0xFFFFF3E0)        // button textColor
+                        )) {
                         Text("$selectedDays Days")
                     }
                     DropdownMenu(
                         expanded = expandRange,
-                        onDismissRequest = { expandRange = false }
+                        onDismissRequest = { expandRange = false },
+                        modifier = Modifier
+                            .background(Color(0xFFFFF3E0))
                     ) {
                         daysOptions.forEach { d ->
                             DropdownMenuItem(

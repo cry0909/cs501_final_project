@@ -20,15 +20,21 @@ import kotlinx.coroutines.launch
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.SleepSessionRecord
+import com.example.wellipet.ui.components.CuteTopBar
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.wellipet.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
@@ -113,7 +119,14 @@ fun LoginScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("WelliPet - Login") }) }
+        topBar = {
+            CuteTopBar(
+                title     = "Login",
+                fontSize  = 22.sp,
+                gradient  = Brush.horizontalGradient(listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2))),
+                elevation = 4f
+            )
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -123,6 +136,13 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.welli_logo),
+                contentDescription = "App Logo",
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(bottom = 32.dp)
+            )
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -141,18 +161,35 @@ fun LoginScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = rememberMe,
-                    onCheckedChange = { rememberMe = it }
+                    onCheckedChange = { rememberMe = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color(0xFF4F2603),       // 選中時方塊和勾勾的顏色 (如果沒指定 checkmarkColor)
+                        uncheckedColor = Color(0xFF4F2603),   // 未選中時邊框的顏色
+                        checkmarkColor = Color(0xFFFFF3E0)            // 勾勾的顏色 (覆蓋 checkedColor 對勾勾的影響)
+                    )
                 )
                 Text("Remember me")
             }
             Spacer(Modifier.height(16.dp))
             Button(
                 onClick = { authViewModel.signIn(email, password) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4F2603),    // button bgColor
+                    contentColor = Color(0xFFFFF3E0)        // button textColor
+                )
             ) {
                 Text("Login")
             }
-            TextButton(onClick = onSignUpClick) {
+            TextButton(
+                onClick = onSignUpClick,
+                colors = ButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color(0xFF4F2603),
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = Color(0xFF4F2603)
+                )
+            ) {
                 Text("No account? Sign Up")
             }
             when (authState) {
