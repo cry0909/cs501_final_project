@@ -14,7 +14,7 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    private val repository = HealthRepository(application)
+    val repository = HealthRepository(application)
 
     private val _currentSteps = MutableStateFlow(0L)
     val currentSensorSteps: StateFlow<Long> = _currentSteps

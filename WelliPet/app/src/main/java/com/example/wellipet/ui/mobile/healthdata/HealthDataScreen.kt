@@ -25,13 +25,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.wellipet.ui.mobile.home.HomeViewModel
+import kotlinx.coroutines.launch
 import com.example.wellipet.ui.components.CuteTopBar
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
 @Composable
-fun HealthDataScreen(onBackClick: () -> Unit) {
+fun HealthDataScreen(onBackClick: () -> Unit ) {
     val vm: HealthDataViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel()
+    val scope = rememberCoroutineScope()
+
     val steps by vm.currentSensorSteps.collectAsState()
     val sleepSec by vm.currentSleep.collectAsState()
     val hydration by vm.currentHydration.collectAsState()
@@ -185,8 +190,17 @@ fun HealthDataScreen(onBackClick: () -> Unit) {
                     Spacer(Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            inputHyd.toLongOrNull()?.let {
-                                vm.addHydration(it)
+                            inputHyd.toLongOrNull()?.let { amount ->
+                                scope.launch {
+                                    // 1) 先写入喝水
+                                    val ok = vm.repository.addHydration(amount)
+                                    if (ok) {
+                                        // 2) 写完再刷新 HealthDataViewModel 中的图表和数值
+                                        vm.readHealthData(selectedDays)
+                                        // 3) 再立刻计算并写回 petStatus
+                                        homeViewModel.refreshPetStatusNow()
+                                    }
+                                }
                                 inputHyd = ""
                             }
                         },

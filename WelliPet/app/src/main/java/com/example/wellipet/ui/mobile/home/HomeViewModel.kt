@@ -35,30 +35,39 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.petStatusFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, "happy")
 
+    /** 把计算状态的逻辑抽成一个 suspend 函数 */
+    private suspend fun computeAndSavePetStatus() {
+        // 过去 1h 的喝水量
+        val water1h = runCatching { healthRepo.getHydrationLast(hours = 1) }.getOrDefault(0L)
+        // 过去 2h 的步数
+        val steps2h = runCatching { healthRepo.getStepsLast(hours = 2)    }.getOrDefault(0L)
+
+        val newStatus = when {
+            water1h < 100L -> "thirsty"
+            steps2h <  25L -> "sleepy"
+            else           -> "happy"
+        }
+        userRepo.savePetStatus(newStatus)
+    }
+
     init {
+        // 1) 启动时立刻刷新一次
+        viewModelScope.launch { computeAndSavePetStatus() }
+
+        // 2) 然后每小时定时刷新
         viewModelScope.launch {
             while (true) {
-                // 1. 过去 1 小时的喝水量
-                val waterLastHour = runCatching { healthRepo.getHydrationLast(hours = 1) }
-                    .getOrElse { 0L }
-                // 2. 过去 2 小时的步数
-                val stepsLast2h = runCatching { healthRepo.getStepsLast(hours = 2) }
-                    .getOrElse { 0L }
-
-                // 3. 决定状态
-                val newStatus = when {
-                    waterLastHour < 100L -> "thirsty"
-                    stepsLast2h < 25L -> "sleepy"
-                    else -> "happy"
-                }
-
-                // 4. 写回 Firestore
-                userRepo.savePetStatus(newStatus)
-
-                // 5. 下次检查前等待 1 小时
-                delay(60 * 60 * 1000L)
+                delay(60*60*1000L)
+                computeAndSavePetStatus()
             }
         }
+    }
+    /** 对外暴露，供喝水／走路后立即调用 */
+    fun refreshPetStatusNow() {
+        viewModelScope.launch { computeAndSavePetStatus() }
+    }
+
+    init {
         viewModelScope.launch {
         // 每當位置更新時自動抓取新的天氣資訊
             locationRepository.getLocationFlow().collectLatest { coordinates ->
