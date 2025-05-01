@@ -4,7 +4,6 @@ package com.example.wellipet.ui.mobile.healthdata
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wellipet.data.model.StepCount
 import com.example.wellipet.data.repository.HealthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,23 +52,6 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
             } catch (e: Exception) {
                 _errorMessage.value = "load health data failed"
             }
-        }
-    }
-
-    fun addHydration(hydrationMl: Long) {
-        viewModelScope.launch {
-            if (repository.addHydration(hydrationMl)) {
-                readHealthData(7)
-            }
-        }
-    }
-
-
-    fun readSensorSteps() {
-        viewModelScope.launch {
-            // 讀取感應器步數
-            val steps = repository.getSensorSteps()
-            _currentSteps.value = steps
         }
     }
 

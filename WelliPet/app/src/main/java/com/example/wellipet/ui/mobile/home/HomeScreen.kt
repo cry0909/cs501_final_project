@@ -1,7 +1,6 @@
 // File: com/example/wellipet/ui/mobile/home/HomeScreen.kt
 package com.example.wellipet.ui.mobile.home
 
-import RequestLocationPermission
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -43,6 +42,8 @@ import com.example.wellipet.navigation.Screen
 import com.example.wellipet.ui.model.PetGifMapper
 import kotlinx.coroutines.launch
 import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 
 @Composable
 fun WeatherCard(
@@ -129,11 +130,6 @@ fun HomeScreen(
     authViewModel: AuthViewModel = viewModel(),    // 登出用
 
 ) {
-    RequestLocationPermission { granted ->
-        // HomeViewModel 已經在 init 中處理位置更新與天氣刷新
-    }
-
-    val weatherResponse by homeViewModel.weatherResponse.collectAsState()
 
     // 從 StoreViewModel 中讀取永久保存的選擇（DataStore）
     val selectedPet by storeViewModel.selectedPet.collectAsState()
@@ -170,24 +166,39 @@ fun HomeScreen(
     val menuBg = Color(0xFFF8E0CB)
     val itemText = Color(0xFF6B3E1E)
 
-    // 1) 记住一个状态：权限是否已授予
-    var hasLocationPermission by remember { mutableStateOf(false) }
+    //AI Solution
+    // 1. 初始检查权限
+    val permission = Manifest.permission.ACCESS_FINE_LOCATION
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, permission) ==
+                    PackageManager.PERMISSION_GRANTED
+        )
+    }
 
-    // 2) 创建一个 launcher 去请求 FINE_LOCATION 权限
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
+    // 2. 用 launcher 请求权限
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
     ) { granted ->
         hasLocationPermission = granted
-        if (granted) {
-            // 一旦用户同意，立刻触发天气加载
-            homeViewModel.loadWeather()
+    }
+
+    // 3. 一进来就，如果还没权限就弹一次
+    LaunchedEffect(Unit) {
+        if (!hasLocationPermission) {
+            launcher.launch(permission)
         }
     }
 
-    // 3) 在首次 Composition 时马上弹权限请求（只会调用一次）
-    LaunchedEffect(Unit) {
-        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    // 4. 只要拿到权限，就立刻调用 loadWeather()
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
+            homeViewModel.loadWeather()
+        }
     }
+    //AI Solution end
+
+    val weather by homeViewModel.weatherResponse.collectAsState()
 
 
     Scaffold(
@@ -270,7 +281,6 @@ fun HomeScreen(
             }
 
             // 一旦有权限，再显示天气卡片
-            val weather by homeViewModel.weatherResponse.collectAsState()
             if (weather != null && hasLocationPermission) {
                 Box(
                     modifier = Modifier
@@ -299,8 +309,7 @@ fun HomeScreen(
                     imageLoader = gifImageLoader,
                     contentDescription = "Pet",
                     modifier = Modifier
-                        .size(300.dp)
-                        .clip(CircleShape),
+                        .size(300.dp),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -376,6 +385,7 @@ fun HomeScreen(
                         }
                     }
                 )
-            }        }
+            }
+        }
     }
 }

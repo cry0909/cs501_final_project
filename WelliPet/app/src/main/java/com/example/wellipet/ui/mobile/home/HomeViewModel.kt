@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.wellipet.data.repository.FirebaseUserRepository
 import com.example.wellipet.data.repository.HealthRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,6 +28,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _weatherResponse = MutableStateFlow<WeatherResponse?>(null)
     val weatherResponse: StateFlow<WeatherResponse?> = _weatherResponse
+
+    private var weatherJob: Job? = null
+
 
     private val userRepo = FirebaseUserRepository()
     private val healthRepo = HealthRepository(application)
@@ -67,21 +71,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { computeAndSavePetStatus() }
     }
 
+    /** 只有在确认为有位置权限后才调用这个方法，开始订阅位置并拉天气(AI solution) */
     fun loadWeather() {
-        viewModelScope.launch {
-            locationRepository.getLocationFlow().collect { coords ->
-                val response = try {
-                    if (coords != null) {
-                        val (lat, lon) = coords
-                        weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
-                    } else {
-                        weatherService.getCurrentWeatherByCity("Beijing", apiKey)
+        // 取消上一次（如果正在跑）
+        weatherJob?.cancel()
+        weatherJob = viewModelScope.launch {
+            locationRepository
+                .getLocationFlow()
+                .collectLatest { coords ->
+                    val resp = try {
+                        if (coords != null) {
+                            val (lat, lon) = coords
+                            weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
+                        } else {
+                            weatherService.getCurrentWeatherByCity("Beijing", apiKey)
+                        }
+                    } catch (_: Exception) {
+                        null
                     }
-                } catch (e: Exception) {
-                    null
+                    _weatherResponse.value = resp
                 }
-                _weatherResponse.value = response
-            }
         }
     }
 }
