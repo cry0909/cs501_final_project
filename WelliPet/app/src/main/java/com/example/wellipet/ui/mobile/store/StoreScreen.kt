@@ -60,9 +60,6 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
 
     val ctx = LocalContext.current
 
-    // 從 StoreViewModel 中取得當前選擇 (DataStore 保存的值)
-    val selectedPet by storeViewModel.selectedPet.collectAsState()
-    val selectedBackground by storeViewModel.selectedBackground.collectAsState()
     val unlockedBadge by storeViewModel.unlockedBadges.collectAsState()
     val selectedBadge by storeViewModel.selectedBadges.collectAsState()
 

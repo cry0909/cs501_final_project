@@ -3,8 +3,7 @@ package com.example.wellipet.ui.model
 
 import com.example.wellipet.R
 import com.example.wellipet.data.repository.HealthRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+
 
 enum class BadgeCategory { Hydration, Steps, Sleep, Combined }
 

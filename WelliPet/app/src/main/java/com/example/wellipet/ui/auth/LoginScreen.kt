@@ -10,19 +10,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wellipet.data.AuthPreferences.rememberMeFlow
 import com.example.wellipet.data.AuthPreferences.setRememberMe
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.LaunchedEffect
-
-import kotlinx.coroutines.launch
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
@@ -88,13 +82,18 @@ fun LoginScreen(
         HealthPermission.getReadPermission(HydrationRecord::class),
         HealthPermission.getWritePermission(HydrationRecord::class)
     )
+
+    // 用来控制是否显示 “权限被拒绝” 对话框
+    var showPermissionsDenied by remember { mutableStateOf(false) }
+
     val requestPermissionsLauncher = rememberLauncherForActivityResult(
         contract = PermissionController.createRequestPermissionResultContract()
     ) { granted ->
         // 授权结果回调
-//        if (!granted.containsAll(REQUIRED_PERMISSIONS)) {
-//            // TODO: 提示用户必须授权才能继续
-//        }
+        if (!granted.containsAll(REQUIRED_PERMISSIONS)) {
+            // 用户拒绝了至少一个必须权限，弹框提示
+            showPermissionsDenied = true
+        }
     }
 
     // 3) 如果还没授权，就发起一次请求

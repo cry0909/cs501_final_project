@@ -14,7 +14,6 @@ import com.example.wellipet.ui.mobile.healthdata.HealthDataScreen
 import com.example.wellipet.ui.mobile.store.StoreScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.wellipet.data.AuthPreferences.rememberMeFlow
-import com.example.wellipet.data.AuthPreferences.setRememberMe
 
 
 
