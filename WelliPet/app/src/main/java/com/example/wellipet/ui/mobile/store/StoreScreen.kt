@@ -133,7 +133,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                 modifier = Modifier
                     .fillMaxWidth()
                     // 大約顯示 3 列：80dp * 3 + 12dp * 2 = 264dp，再多點 padding
-                    .height(280.dp)
+                    .height(360.dp)
             )  {
                 items(allBadges) { badgeRes ->
                     // 將資源 ID 轉成唯一字串 ID，用於 toggleBadge

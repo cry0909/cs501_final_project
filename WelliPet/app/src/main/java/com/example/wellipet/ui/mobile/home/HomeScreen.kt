@@ -136,7 +136,7 @@ fun HomeScreen(
     val selectedBadges by storeViewModel.selectedBadges.collectAsState()
     val petStatus      by homeViewModel.petStatus.collectAsState()
 
-    val backgroundRes = selectedBackground ?: R.drawable.bg_park  // 預設背景圖片
+    val backgroundRes = selectedBackground ?: R.drawable.bg_home  // 預設背景圖片
     val gifRes = PetGifMapper.get(
         selectedPet ?: R.drawable.pet_dog,
         petStatus   ?: "happy"
@@ -161,6 +161,7 @@ fun HomeScreen(
 
     var menuExpanded by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showQADialog by remember { mutableStateOf(false) }
 
     val menuBg = Color(0xFFF8E0CB)
     val itemText = Color(0xFF6B3E1E)
@@ -229,10 +230,10 @@ fun HomeScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Share", color = itemText) },
+                            text = { Text("Q & A", color = itemText) },
                             onClick = {
                                 menuExpanded = false
-                                // TODO: 呼叫分享 Intent
+                                showQADialog = true
                             }
                         )
                         DropdownMenuItem(
@@ -299,7 +300,7 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 60.dp),
+                    .padding(top = 160.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -353,7 +354,48 @@ fun HomeScreen(
                     WelliPet is a virtual pet companion that grows alongside your healthy habits—every glass of water you drink, every step you take, and every night of restful sleep helps your pet thrive. As you hit your hydration, activity, and sleep goals, you’ll unlock fun badges, and discover new customization options to dress up and decorate your pet’s world (This feature coming soon).
 
                     According to the World Health Organization’s recommendations, we encourage players to achieve the following daily goals: 5,000 steps, 7 hours of sleep, and 2,000 ml of water intake. Let’s work together for our health!
+                  
+                    """.trimIndent()
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showAboutDialog = false }) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
+            if (showQADialog) {
+                val scrollState = rememberScrollState()
+                AlertDialog(
+                    onDismissRequest = { showAboutDialog = false },
+                    containerColor = Color(0xFFF8E0CB),
+                    title = { Text("Common Questions") },
+                    text = {
+                        // 限制高度到 300.dp，超过就滚动
+                        Box(
+                            Modifier
+                                .heightIn(max = 300.dp)
+                                .verticalScroll(scrollState)
+                        ) {
+                            Text(
+                                """
+                    Q: What does each pet status mean?
                     
+                    A: Each status reflects your recent habits over the last 1–2 hours:
+                        • happy      — You’ve met both your hydration and activity targets.  
+                        • thirsty    — Your water intake in the past hour is below target.  
+                        • sleepy     — Your step count in the past two hours is below target.  
+
+
+                    Q: What are Badges?
+                    
+                    A: Badges are achievements you unlock by hitting daily or multi‑day goals in hydration, steps, and sleep. You can display up to three badges on your pet to show off your progress.  
+                       – Daily badges reward you for a single‑day achievement.  
+                       – Streak badges reward you for consecutive days of meeting the goal.  
+                       – Combined badges reward multi‑category completion (e.g. hydration + steps + sleep).
+
                     Badges:
                     💧 Hydration Novice (Hydration): Single-day hydration ≥ 2000 ml
                     🚰 Hydration Expert (Hydration): 7 consecutive days with daily hydration ≥ 2000 ml
@@ -379,7 +421,7 @@ fun HomeScreen(
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showAboutDialog = false }) {
+                        TextButton(onClick = { showQADialog = false }) {
                             Text("OK")
                         }
                     }
