@@ -1,6 +1,9 @@
 // File: com/example/wellipet/MainActivity.kt
 package com.example.wellipet
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -15,19 +18,30 @@ import com.example.wellipet.worker.HealthCheckWorker
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val CHANNEL_ID = "health_check_channel"
+        private const val UNIQUE_WORK_NAME = "health_check"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) 建立週期性工作：每 1 小時執行一次 HealthCheckWorker
+        // 1) 先创建通知渠道（Android O+）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val chan = NotificationChannel(
+                CHANNEL_ID,
+                "Health Check Alerts",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Reminders to drink water and move around"
+            }
+            getSystemService(NotificationManager::class.java)
+                ?.createNotificationChannel(chan)
+        }
+
+        // 2) 提交周期性任务：15 分钟执行一次 HealthCheckWorker
         val workRequest = PeriodicWorkRequestBuilder<HealthCheckWorker>(
             /* repeatInterval = */ 15, TimeUnit.MINUTES
         )
-            .setConstraints(
-                Constraints.Builder()
-//                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    // 你還可以加其他約束：.setRequiresBatteryNotLow(true)、.setRequiresStorageNotLow(true)…
-                    .build()
-            )
             .setInitialDelay(0, TimeUnit.MINUTES)
             .build()
 
@@ -39,12 +53,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-//         2) 提交給 WorkManager，使用唯一名稱避免重複註冊
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            /* uniqueWorkName = */ "health_check",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                UNIQUE_WORK_NAME,
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
 
         setContent {
             WelliPetTheme {

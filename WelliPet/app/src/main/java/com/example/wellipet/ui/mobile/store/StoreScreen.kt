@@ -104,12 +104,6 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                     }
                 }
             }
-            if (selectedPet != null) {
-                Text(
-                    text = "Selected Pet: $selectedPet",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
 
             // 背景選擇區域
             Text("Select Background", style = MaterialTheme.typography.titleLarge)
@@ -129,12 +123,6 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                         )
                     }
                 }
-            }
-            if (selectedBackground != null) {
-                Text(
-                    text = "Selected Background: $selectedBackground",
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
             // --- 徽章選擇 ---
             Text("Choose Badges (Up to 3)", style = MaterialTheme.typography.titleLarge)
@@ -194,12 +182,6 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                         }
                     }
                 }
-            }
-            if (selectedBadge.isNotEmpty()) {
-                Text(
-                    "Selected badges: ${selectedBadge.joinToString()}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
             }
         }
     }
