@@ -2,18 +2,11 @@
 package com.example.wellipet.data.repository
 
 import android.content.Context
-import androidx.room.Room
-import com.example.wellipet.data.model.AppDatabase
-import com.example.wellipet.data.model.StepCount
-import com.example.wellipet.data.source.StepCounterSensor
+
 import com.example.wellipet.data.source.HealthConnectSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.time.Instant
 
 class HealthRepository(context: Context) {
     private val healthConnectSource = HealthConnectSource(context)
-    private val stepCounterSensor = StepCounterSensor(context)
 
     private var histSteps30: List<Pair<String,Long>>? = null
     private var histHyd30:  List<Pair<String,Long>>? = null
@@ -31,10 +24,6 @@ class HealthRepository(context: Context) {
 
     suspend fun getSteps(): Long {
         return healthConnectSource.readSteps()
-    }
-    // 使用感應器取得步數的介面
-    suspend fun getSensorSteps(): Long {
-        return stepCounterSensor.getSteps()
     }
 
     suspend fun readSleep(): Long {
