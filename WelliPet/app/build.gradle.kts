@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
     kapt(libs.androidx.room.compiler) // for annotation processing
     implementation(libs.androidx.room.ktx) // for Flow and coroutines
 

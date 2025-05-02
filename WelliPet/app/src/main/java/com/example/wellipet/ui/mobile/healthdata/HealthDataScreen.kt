@@ -28,9 +28,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.wellipet.ui.mobile.home.HomeViewModel
 import kotlinx.coroutines.launch
-import com.example.wellipet.ui.components.CuteTopBar
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun HealthDataScreen(onBackClick: () -> Unit ) {

@@ -131,7 +131,6 @@ fun HomeScreen(
 
 ) {
 
-    // 從 StoreViewModel 中讀取永久保存的選擇（DataStore）
     val selectedPet by storeViewModel.selectedPet.collectAsState()
     val selectedBackground by storeViewModel.selectedBackground.collectAsState()
     val selectedBadges by storeViewModel.selectedBadges.collectAsState()

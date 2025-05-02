@@ -9,13 +9,9 @@ import com.example.wellipet.api.RetrofitClient
 import com.example.wellipet.api.WeatherResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.wellipet.data.repository.FirebaseUserRepository
 import com.example.wellipet.data.repository.HealthRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 
@@ -28,8 +24,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _weatherResponse = MutableStateFlow<WeatherResponse?>(null)
     val weatherResponse: StateFlow<WeatherResponse?> = _weatherResponse
-
-    private var weatherJob: Job? = null
 
 
     private val userRepo = FirebaseUserRepository()
@@ -54,18 +48,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.savePetStatus(newStatus)
     }
 
-    init {
-        // 1) 启动时立刻刷新一次
-        viewModelScope.launch { computeAndSavePetStatus() }
+    init { viewModelScope.launch { computeAndSavePetStatus() }} //  启动时立刻刷新一次
 
-        // 2) 然后每小时定时刷新
-        viewModelScope.launch {
-            while (true) {
-                delay(60*60*1000L)
-                computeAndSavePetStatus()
-            }
-        }
-    }
     /** 对外暴露，供喝水／走路后立即调用 */
     fun refreshPetStatusNow() {
         viewModelScope.launch { computeAndSavePetStatus() }
@@ -73,24 +57,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     /** 只有在确认为有位置权限后才调用这个方法，开始订阅位置并拉天气(AI solution) */
     fun loadWeather() {
-        // 取消上一次（如果正在跑）
-        weatherJob?.cancel()
-        weatherJob = viewModelScope.launch {
-            locationRepository
-                .getLocationFlow()
-                .collectLatest { coords ->
-                    val resp = try {
-                        if (coords != null) {
-                            val (lat, lon) = coords
-                            weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
-                        } else {
-                            weatherService.getCurrentWeatherByCity("Beijing", apiKey)
-                        }
-                    } catch (_: Exception) {
-                        null
+        viewModelScope.launch {
+            locationRepository.getLocationFlow().collect { coords ->
+                val response = try {
+                    if (coords != null) {
+                        val (lat, lon) = coords
+                        weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
+                    } else {
+                        weatherService.getCurrentWeatherByCity("Beijing", apiKey)
                     }
-                    _weatherResponse.value = resp
+                } catch (e: Exception) {
+                    null
                 }
+                _weatherResponse.value = response
+            }
         }
     }
 }
