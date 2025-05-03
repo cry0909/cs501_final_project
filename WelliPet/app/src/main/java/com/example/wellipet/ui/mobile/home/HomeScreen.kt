@@ -130,20 +130,22 @@ fun HomeScreen(
     authViewModel: AuthViewModel = viewModel(),    // 登出用
 
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
-    val selectedPet by storeViewModel.selectedPet.collectAsState()
-    val selectedBackground by storeViewModel.selectedBackground.collectAsState()
+    val petKey by storeViewModel.selectedPet.collectAsState()
+    val bgName by storeViewModel.selectedBackground.collectAsState()
     val selectedBadges by storeViewModel.selectedBadges.collectAsState()
     val petStatus      by homeViewModel.petStatus.collectAsState()
 
-    val backgroundRes = selectedBackground ?: R.drawable.bg_home  // 預設背景圖片
-    val gifRes = PetGifMapper.get(
-        selectedPet ?: R.drawable.pet_dog,
-        petStatus   ?: "happy"
-    )
+    val backgroundRes = bgName
+        ?.let { name -> context.resources.getIdentifier(name, "drawable", context.packageName) }
+        ?: R.drawable.bg_home
 
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val gifRes = PetGifMapper.get(
+        petKey ?: "dog",
+        petStatus ?: "happy"
+    )
 
     val gifImageLoader = remember {
         ImageLoader.Builder(context)

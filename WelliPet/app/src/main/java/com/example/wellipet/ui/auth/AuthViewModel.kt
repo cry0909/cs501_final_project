@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
+
 sealed class AuthState {
     object Idle : AuthState()
     object Loading : AuthState()
@@ -53,13 +54,14 @@ class AuthViewModel : ViewModel() {
                     .document(user.uid)
                     .set(
                         mapOf(
-                            "selectedBadges"    to emptyList<String>(),
-                            "selectedPet"       to null,
+                            "selectedPet"        to null,
                             "selectedBackground" to null,
-                            "unlockedBadges"      to emptyList<String>(),
-                            "petStatus"          to "happy"
+                            "selectedBadges"         to emptyList<String>(),
+                            "unlockedBadges"         to emptyList<String>(),
+                            "petStatus"              to "happy"
                         )
                     )
+
                 // 2) 繼續後面的流程
                 _authState.value = AuthState.Success(user)
                 viewModelScope.launch { _navigationEvent.emit(Unit) }

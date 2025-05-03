@@ -20,12 +20,12 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
 
 
     /** 已選寵物資源 ID */
-    val selectedPet: StateFlow<Int?> =
+    val selectedPet: StateFlow<String?> =
         userRepo.selectedPetFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** 已選背景資源 ID */
-    val selectedBackground: StateFlow<Int?> =
+    val selectedBackground: StateFlow<String?> =
         userRepo.selectedBackgroundFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -67,13 +67,13 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     /** 選擇寵物 */
-    fun selectPet(resId: Int) = viewModelScope.launch {
-        userRepo.saveSelectedPet(resId)
+    fun selectPet(name: String) = viewModelScope.launch {
+        userRepo.saveSelectedPet(name)
     }
 
     /** 選擇背景 */
-    fun selectBackground(resId: Int) = viewModelScope.launch {
-        userRepo.saveSelectedBackground(resId)
+    fun selectBackground(name: String) = viewModelScope.launch {
+        userRepo.saveSelectedBackground(name)
     }
 
     /**

@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wellipet.data.AuthPreferences.setRememberMe
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.ui.graphics.Brush
@@ -28,6 +29,10 @@ import com.example.wellipet.ui.components.CuteTopBar
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.wellipet.R
+import com.google.android.gms.wearable.PutDataMapRequest
+import com.google.android.gms.wearable.Wearable
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GetTokenResult
 
 @Composable
 fun LoginScreen(
@@ -111,8 +116,29 @@ fun LoginScreen(
     // 利用 LaunchedEffect 收集一次性導航事件
     LaunchedEffect(Unit) {
         authViewModel.navigationEvent.collect {
-            // 存储用户的 “Remember me” 选择
+            // 1) 存 RememberMe
             context.setRememberMe(rememberMe)
+
+            // 2) 拿到 UID
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@collect
+
+            // 3) 发送给所有已配对手表节点
+            Wearable.getNodeClient(context)
+                .connectedNodes
+                .addOnSuccessListener { nodes ->
+                    nodes.forEach { node ->
+                        Wearable.getMessageClient(context)
+                            .sendMessage(node.id, "/auth-uid", uid.toByteArray())
+                            .addOnSuccessListener {
+                                Log.d("Phone→Watch", "➡️ uid sent to ${node.displayName}")
+                            }
+                            .addOnFailureListener {
+                                Log.e("Phone→Watch", "sendMessage failed", it)
+                            }
+                    }
+                }
+
+            // 4) 真正导航
             onLoginSuccess()
         }
     }

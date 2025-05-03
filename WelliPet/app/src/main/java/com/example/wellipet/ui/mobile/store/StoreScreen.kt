@@ -37,9 +37,9 @@ import com.example.wellipet.ui.components.CuteTopBar
 fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewModel()) {
     // 寵物圖片資源列表
     val petImages = listOf(
-        R.drawable.pet_dog,
-        R.drawable.pet_cat,
-        R.drawable.pet_rabbit
+        R.drawable.dog,
+        R.drawable.cat,
+        R.drawable.rabbit
     )
     // 背景圖片資源列表
     val backgroundImages = listOf(
@@ -86,10 +86,11 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             Text("Select Your Pet", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(petImages) { petRes ->
+                    val petKey = ctx.resources.getResourceEntryName(petRes)
                     Card(
                         modifier = Modifier
                             .size(120.dp)
-                            .clickable { storeViewModel.selectPet(petRes) },
+                            .clickable { storeViewModel.selectPet(petKey) },
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Image(
@@ -106,10 +107,11 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             Text("Select Background", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(backgroundImages) { bgRes ->
+                    val bgKey = ctx.resources.getResourceEntryName(bgRes)
                     Card(
                         modifier = Modifier
                             .size(120.dp)
-                            .clickable { storeViewModel.selectBackground(bgRes) },
+                            .clickable { storeViewModel.selectBackground(bgKey) },
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Image(

@@ -1,5 +1,5 @@
 // File: com/example/wellipet/ui/model/PetGifMapper.kt
-package com.example.wellipet.ui.model
+package com.example.wellipet.presentation.model
 
 import com.example.wellipet.R
 
@@ -22,7 +22,6 @@ object PetGifMapper {
         )
     )
 
-    /** 传入 petKey，比如 "dog"、"cat" **/
     fun get(petKey: String?, status: String): Int {
         val key = petKey?.takeIf { map.containsKey(it) } ?: "dog"
         return map[key]?.get(status)

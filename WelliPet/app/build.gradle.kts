@@ -82,6 +82,8 @@ dependencies {
     implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
 
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.play.services.wearable)
     
 
     testImplementation(libs.junit)

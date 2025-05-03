@@ -42,14 +42,12 @@ class FirebaseUserRepository {
     }
 
     /** selectedPet 流 */
-    fun selectedPetFlow(): Flow<Int?> = listenField("selectedPet") { raw ->
-        (raw as? Long)?.toInt()  // Firestore 数字默认 Long
-    }
+    fun selectedPetFlow(): Flow<String?> =
+        listenField("selectedPet") { raw -> raw as? String }
 
     /** selectedBackground 流 */
-    fun selectedBackgroundFlow(): Flow<Int?> = listenField("selectedBackground") { raw ->
-        (raw as? Long)?.toInt()
-    }
+    fun selectedBackgroundFlow(): Flow<String?> =
+        listenField("selectedBackground") { raw -> raw as? String }
 
     /** selectedBadges 流 */
     fun selectedBadgesFlow(): Flow<Set<String>> = listenField("selectedBadges") { raw ->
@@ -73,12 +71,12 @@ class FirebaseUserRepository {
     }
 
     /** 写入 selectedPet **/
-    suspend fun saveSelectedPet(resId: Int) =
-        updateField("selectedPet", resId)
+    suspend fun saveSelectedPet(name: String) =
+        updateField("selectedPet", name)
 
     /** 写入 selectedBackground **/
-    suspend fun saveSelectedBackground(resId: Int) =
-        updateField("selectedBackground", resId)
+    suspend fun saveSelectedBackground(name: String) =
+        updateField("selectedBackground", name)
 
     /** 写入 selectedBadges **/
     suspend fun saveSelectedBadges(badges: Set<String>) =

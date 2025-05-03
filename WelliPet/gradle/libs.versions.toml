@@ -1,5 +1,6 @@
 [versions]
 agp = "8.8.0"
+composeNavigation = "1.4.1"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -14,6 +15,7 @@ navigationCommonKtx = "2.8.9"
 playServicesWearable = "19.0.0"
 composeMaterial = "1.2.1"
 composeFoundation = "1.2.1"
+playServicesWearableVersion = "18.1.0"
 wearToolingPreview = "1.0.0"
 coreSplashscreen = "1.0.1"
 roomRuntime = "2.6.1"
@@ -29,8 +31,11 @@ converterMoshi = "2.9.0"
 accompanistPermissions = "0.31.3-beta"
 datastorePreferences = "1.1.4"
 workRuntimeKtx = "2.10.1"
+foundationLayoutAndroid = "1.7.8"
+foundationAndroid = "1.7.2"
 
 [libraries]
+androidx-compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "composeNavigation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -66,6 +71,8 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 
 
 
