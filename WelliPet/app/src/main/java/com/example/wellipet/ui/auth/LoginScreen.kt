@@ -29,10 +29,8 @@ import com.example.wellipet.ui.components.CuteTopBar
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.example.wellipet.R
-import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GetTokenResult
 
 @Composable
 fun LoginScreen(
