@@ -48,7 +48,9 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
         R.drawable.bg_beach,
         R.drawable.bg_rain,
         R.drawable.bg_city,
-        R.drawable.bg_avenue
+        R.drawable.bg_tennis,
+        R.drawable.bg_basketball,
+        R.drawable.bg_store
     )
     // 資源 ID 列表，請替換成你自己 16 顆徽章的 R.drawable.xxx
     val allBadges = listOf(
