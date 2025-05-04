@@ -34,9 +34,9 @@ fun CuteTopBar(
         colors = listOf(Color(0xFFF8E0CB), Color(0xFFFACE76))
     ),
     elevation: Float = 2f,
-    actions: @Composable RowScope.() -> Unit = {}      // ← 新增 actions slot
+    actions: @Composable RowScope.() -> Unit = {}      // ← Add actions slot
 ) {
-    // 1. 準備 GoogleFont
+    // 1. Prepare Google Font
     val pressStart = GoogleFont("Press Start 2P")
     val provider = Provider(
         providerAuthority = "com.google.android.gms.fonts",
@@ -47,7 +47,7 @@ fun CuteTopBar(
         GoogleFontFont(pressStart, provider, weight = FontWeight.Bold)
     )
 
-    // 2. 畫 TopAppBar
+    // 2. Draw the TopAppBar
     TopAppBar(
         modifier = Modifier
             .fillMaxWidth()

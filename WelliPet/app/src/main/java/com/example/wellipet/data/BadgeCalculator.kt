@@ -7,7 +7,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.async
 
 class BadgeCalculator(private val repo: HealthRepository) {
-    /** 同步計算所有已解鎖 Badge 的 id */
+    // Calculate all unlocked badge IDs
     suspend fun calculateUnlocked(): Set<String> = coroutineScope {
         allBadgeDefinitions.map { def ->
             async {

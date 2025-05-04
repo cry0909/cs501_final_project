@@ -5,7 +5,6 @@ import android.content.Context
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -22,21 +21,19 @@ class HealthCheckWorker(
 ) : CoroutineWorker(ctx, params) {
 
     override suspend fun doWork(): Result {
-        Log.d("HealthCheckWorker", "🏃‍♂️ doWork() start at ${System.currentTimeMillis()}")
-
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
-            // 或者返回 Result.retry()，看你想让它下次再试，还是认定“跳过”就成功
+            // If no user is signed in, consider this work done or retry later as desired
             return Result.success()
         }
 
         val healthRepo = HealthRepository(applicationContext)
         val userRepo = FirebaseUserRepository()
 
-        // 过去 1h 的喝水量
+        // Water intake in the past hour
         val water1h = runCatching { healthRepo.getHydrationLast(hours = 1) }
             .getOrDefault(0L)
-        // 过去 2h 的步数
+        // Step count in the past two hours
         val steps2h = runCatching { healthRepo.getStepsLast(hours = 2) }
             .getOrDefault(0L)
 
@@ -46,11 +43,10 @@ class HealthCheckWorker(
             else           -> "happy"
         }
 
-        // 写到 Firestore
+        // Update Firestore with the new pet status
         userRepo.savePetStatus(status)
-        Log.d("HealthCheckWorker", "✅ doWork() end, new status = $status")
 
-        // 构建通知
+        // Build appropriate notification text
         val notificationText = when {
             water1h < 100L && steps2h <  25L -> "You haven't drunk enough water or moved enough. Go drink some water and move around!"
             water1h < 100L                    -> "You haven’t had enough water in the past hour, remember to drink water!"
@@ -64,7 +60,7 @@ class HealthCheckWorker(
     }
 
     private fun sendNotification(title: String, text: String) {
-        // 1) Android 13+ 需要在运行时检查 POST_NOTIFICATIONS
+        // 1) On Android 13+ check POST_NOTIFICATIONS permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val granted = ContextCompat.checkSelfPermission(
                 applicationContext,
@@ -75,7 +71,7 @@ class HealthCheckWorker(
             }
         }
 
-        // 2) 再尝试发送，catch 一下万一还抛 SecurityException
+        // 2) Build and post the notification, catching any security exceptions
         try {
             val notif = NotificationCompat.Builder(applicationContext, MainActivity.CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
@@ -87,8 +83,7 @@ class HealthCheckWorker(
             NotificationManagerCompat.from(applicationContext)
                 .notify(System.currentTimeMillis().toInt(), notif)
 
-        } catch (e: SecurityException) {
-            Log.e("HealthCheckWorker", "发送通知失败: 没有权限", e)
+        } catch (_: SecurityException) {
         }
     }
 }

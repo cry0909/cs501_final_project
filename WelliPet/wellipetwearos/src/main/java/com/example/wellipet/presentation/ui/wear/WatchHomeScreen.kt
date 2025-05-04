@@ -2,7 +2,6 @@ package com.example.wellipet.presentation.ui.wear
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,12 +27,12 @@ fun WatchHomeScreen(
 
     val ctx = LocalContext.current
 
-    // 1) 背景资源：key -> id
+    // 1) Resolve the background resource ID from its string key
     val bgRes = bgKey
         ?.let { key -> ctx.resources.getIdentifier(key, "drawable", ctx.packageName) }
         ?: R.drawable.bg_home
 
-    // 2) 宠物动画：直接用 String key
+    // 2) Resolve the pet animation resource using the string key
     val gifRes = PetGifMapper.get(petKey, petStatus)
 
     val loader = remember {
@@ -43,7 +42,7 @@ fun WatchHomeScreen(
     }
 
     Box(Modifier.fillMaxSize()) {
-        // 背景
+        // Background image
         Image(
             painter = painterResource(id = bgRes),
             contentDescription = null,
@@ -51,7 +50,7 @@ fun WatchHomeScreen(
             contentScale = ContentScale.Crop
         )
 
-        // 底部徽章
+        // Top row of up to three badges
         Row(
             Modifier
                 .fillMaxWidth()
@@ -72,7 +71,7 @@ fun WatchHomeScreen(
             }
         }
 
-        // 中间宠物
+        // Pet display
         Box(Modifier.fillMaxSize().padding(top = 50.dp), contentAlignment = Alignment.Center) {
             AsyncImage(
                 model = gifRes,

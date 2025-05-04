@@ -2,18 +2,17 @@ package com.example.wellipet.presentation.data.repository
 
 import android.app.Application
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.example.wellipet.data.dataStore   // ← 你的统一扩展 dataStore
+import com.example.wellipet.data.dataStore
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.tasks.await
 
 private val UID_KEY = stringPreferencesKey("user_uid")
 
 class WatchFirebaseUserRepository(private val app: Application) {
     private val firestore = FirebaseFirestore.getInstance()
 
-    /** 从 DataStore 拿 uid **/
+    /** Retrieve uid from DataStore **/
     val uidFlow: Flow<String?> = app.dataStore.data
         .map { it[UID_KEY] }
 
@@ -30,7 +29,7 @@ class WatchFirebaseUserRepository(private val app: Application) {
         }
     }
 
-    /** selectedPet 现在是 String? **/
+    /** selectedPet **/
     fun selectedPetFlow(): Flow<String?> = uidFlow.flatMapLatest { uid ->
         if (uid.isNullOrBlank()) flowOf(null)
         else callbackFlow {
@@ -42,7 +41,7 @@ class WatchFirebaseUserRepository(private val app: Application) {
         }
     }
 
-    /** selectedBackground 也是 String? **/
+    /** selectedBackground **/
     fun selectedBackgroundFlow(): Flow<String?> = uidFlow.flatMapLatest { uid ->
         if (uid.isNullOrBlank()) flowOf(null)
         else callbackFlow {
@@ -54,7 +53,7 @@ class WatchFirebaseUserRepository(private val app: Application) {
         }
     }
 
-    /** selectedBadges 保持不变 **/
+    /** selectedBadges  **/
     fun selectedBadgesFlow(): Flow<Set<String>> = uidFlow.flatMapLatest { uid ->
         if (uid.isNullOrBlank()) flowOf(emptySet())
         else callbackFlow {

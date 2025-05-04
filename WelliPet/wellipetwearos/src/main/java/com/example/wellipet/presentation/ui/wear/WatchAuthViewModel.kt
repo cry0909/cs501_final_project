@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.*
 private val UID_KEY = stringPreferencesKey("user_uid")
 
 class WatchAuthViewModel(app: Application) : AndroidViewModel(app) {
-    // uidFlow: null 表示還沒收到／存過 UID；非 null 才跳進 home
+    // uidFlow: null means the UID has not yet been received or stored;
+    // only when non-null do we navigate into the home screen
     val uidFlow: StateFlow<String?> = app.dataStore.data
         .map { prefs -> prefs[UID_KEY] }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)

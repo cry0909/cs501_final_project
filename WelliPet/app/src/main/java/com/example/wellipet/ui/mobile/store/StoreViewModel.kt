@@ -15,71 +15,71 @@ class StoreViewModel(application: Application) : AndroidViewModel(application) {
     private val healthRepo = HealthRepository(application)
     private val badgeCalc  = BadgeCalculator(healthRepo)
 
-    // Firestore 中持久化的解锁列表
+    // Flow of badges that have been unlocked and persisted in Firestore
     private val persistedUnlockedFlow = userRepo.unlockedBadgesFlow()
 
 
-    /** 已選寵物資源 ID */
+    /** Flow of the currently selected pet key */
     val selectedPet: StateFlow<String?> =
         userRepo.selectedPetFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    /** 已選背景資源 ID */
+    /** Flow of the currently selected background key */
     val selectedBackground: StateFlow<String?> =
         userRepo.selectedBackgroundFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    /** 從 Firestore 讀取已選徽章 (最多 3 個) **/
+    /** Flow of the selected badge IDs (up to 3) from Firestore */
     val selectedBadges: StateFlow<Set<String>> =
         userRepo.selectedBadgesFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
-    // 計算出來的「已解鎖徽章」
+    // Backing state for the set of badges that are actually unlocked
     private val _unlockedBadges = MutableStateFlow<Set<String>>(emptySet())
     val unlockedBadges: StateFlow<Set<String>> = _unlockedBadges
 
     init {
-        // 啟動時計算一次
+        // Calculate unlocked badges once on startup, then keep in sync with Firestore
         viewModelScope.launch {
-            // 先取后端已保存的
+            // 1) Load persisted unlocked badges
             val persisted = persistedUnlockedFlow.first()
 
-            // 再算一遍当前符合条件的
+            // 2) Compute which badges should be unlocked now
             val current = badgeCalc.calculateUnlocked()
 
-            // 并集：保留以往 + 新达标的
+            // 3) Merge old and new to keep historical unlocks
             val merged = persisted union current
 
-            // 如果有新增，就写回 Firestore
+            // 4) If there are new badges, save them back to Firestore
             if (merged != persisted) {
                 userRepo.saveUnlockedBadges(merged)
             }
 
-            // 更新 UI
+            // 5) Update local UI state
             _unlockedBadges.value = merged
 
-            // 继续监听后端改动，保持同步
+            // 6) Continue listening for remote updates and keep UI in sync
             persistedUnlockedFlow
-                .drop(1) // 跳过已经处理过的那一次
+                .drop(1)
                 .collect { updated ->
                     _unlockedBadges.value = updated
                 }
         }
     }
-    /** 選擇寵物 */
+    /** Select a pet by its key and save to Firestore */
     fun selectPet(name: String) = viewModelScope.launch {
         userRepo.saveSelectedPet(name)
     }
 
-    /** 選擇背景 */
+    /** Select a background by its key and save to Firestore */
     fun selectBackground(name: String) = viewModelScope.launch {
         userRepo.saveSelectedBackground(name)
     }
 
     /**
-     * 切換徽章選擇狀態：
-     * - 如果已經選擇，則移除
-     * - 如果還沒選擇，且總數 < 3，則新增
+     * Toggle badge selection:
+     * - If already selected, remove it
+     * - If not selected and fewer than 3 badges, add it
      */
     fun toggleBadge(badgeId: String) = viewModelScope.launch {
         val current = selectedBadges.value.toMutableSet()

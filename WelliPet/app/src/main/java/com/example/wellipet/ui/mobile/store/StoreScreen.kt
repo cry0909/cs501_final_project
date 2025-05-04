@@ -35,13 +35,13 @@ import com.example.wellipet.ui.components.CuteTopBar
 
 @Composable
 fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewModel()) {
-    // 寵物圖片資源列表
+    // List of pet image resource
     val petImages = listOf(
         R.drawable.dog,
         R.drawable.cat,
         R.drawable.rabbit
     )
-    // 背景圖片資源列表
+    // List of background image resource
     val backgroundImages = listOf(
         R.drawable.bg_home,
         R.drawable.bg_park,
@@ -52,7 +52,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
         R.drawable.bg_basketball,
         R.drawable.bg_store
     )
-    // 資源 ID 列表，請替換成你自己 16 顆徽章的 R.drawable.xxx
+    // List of badge resource
     val allBadges = listOf(
         R.drawable.hydration_novice, R.drawable.hydration_expert, R.drawable.hydration_master, R.drawable.hydration_legend,
         R.drawable.step_beginner, R.drawable.jogger, R.drawable.step_sprinter, R.drawable.step_champion, R.drawable.step_legend,
@@ -84,7 +84,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 寵物選擇區域
+            // Pet selection area
             Text("Select Your Pet", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(petImages) { petRes ->
@@ -105,7 +105,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                 }
             }
 
-            // 背景選擇區域
+            // Background selection area
             Text("Select Background", style = MaterialTheme.typography.titleLarge)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(backgroundImages) { bgRes ->
@@ -125,7 +125,7 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                     }
                 }
             }
-            // --- 徽章選擇 ---
+            // Badge selection
             Text("Choose Badges (Up to 3)", style = MaterialTheme.typography.titleLarge)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(4),
@@ -133,20 +133,19 @@ fun StoreScreen(onBackClick: () -> Unit, storeViewModel: StoreViewModel = viewMo
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    // 大約顯示 3 列：80dp * 3 + 12dp * 2 = 264dp，再多點 padding
                     .height(360.dp)
             )  {
                 items(allBadges) { badgeRes ->
-                    // 將資源 ID 轉成唯一字串 ID，用於 toggleBadge
+                    // Convert resource ID to unique string ID for toggleBadge
                     val badgeId = ctx.resources.getResourceEntryName(badgeRes)
                     val isUnlocked = unlockedBadge.contains(badgeId)
                     val isSelected = selectedBadge.contains(badgeId)
 
-                    // 找灰階版 resource id
+                    // Find grayscale (locked) version resource ID
                     val grayRes = ctx.resources.getIdentifier(
                         "${badgeId}_locked", "drawable", ctx.packageName
                     )
-                    // 決定顯示哪個圖
+                    // Decide which image to display
                     val displayRes = if (isUnlocked) badgeRes else grayRes
 
                     Card(

@@ -22,7 +22,11 @@ object PetGifMapper {
         )
     )
 
-    /** 传入 petKey，比如 "dog"、"cat" **/
+    /**
+     * Given a petKey (e.g. "dog", "cat", "rabbit")
+     * and a status ("happy", "thirsty", "sleepy"),
+     * return the corresponding GIF resource ID.
+     */
     fun get(petKey: String?, status: String): Int {
         val key = petKey?.takeIf { map.containsKey(it) } ?: "dog"
         return map[key]?.get(status)

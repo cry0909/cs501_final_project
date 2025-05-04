@@ -28,6 +28,7 @@ fun SignUpScreen(
     var confirmPassword by remember { mutableStateOf("") }
     val authState by authViewModel.authState.collectAsState()
 
+    // Navigate on successful sign‑up
     LaunchedEffect(Unit) {
         authViewModel.navigationEvent.collect {
             onSignUpSuccess()

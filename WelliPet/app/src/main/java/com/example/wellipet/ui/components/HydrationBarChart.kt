@@ -37,26 +37,23 @@ fun HydrationBarChart(
             }
         },
         update = { chart ->
-            // 將 data 轉換為 BarEntry 集合，x 為 index，y 為 hydration 值（毫升）
+            // Convert data into a list of BarEntry, x is index, y is hydration in mL
             val entries = data.mapIndexed { index, pair ->
                 BarEntry(index.toFloat(), pair.second.toFloat())
             }
-            // 根據每筆資料的飲水量決定顏色
+            // Choose bar color based on hydration amount
             val colors = data.map { pair ->
                 if (pair.second >= 2000L) {
-                    // 淺藍：例如 0xFFADD8E6
                     Color(0xFFADD8E6).toArgb()
                 } else {
-                    // 黃色
                     Color.Yellow.toArgb()
                 }
             }
             val dataSet = BarDataSet(entries, "Hydration History").apply {
-                // 使用展開操作符 "*" 將 List<Int> 轉換為 vararg Int
                 setColors(*colors.toIntArray())
                 valueTextSize = 10f
                 setDrawValues(true)
-                // 格式化 Y 軸數值顯示，例如 "1500 ml"
+                // Format Y-axis values
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
                         return "${value.toInt()} ml"
@@ -66,7 +63,7 @@ fun HydrationBarChart(
             chart.data = BarData(dataSet).apply {
                 barWidth = 0.9f
             }
-            // 設定 x 軸的 ValueFormatter：將每個 x 軸的值顯示對應的日期字串
+            // Set a ValueFormatter on the X-axis to display the corresponding date string
             chart.xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     val index = value.toInt()

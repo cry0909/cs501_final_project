@@ -1,7 +1,6 @@
 package com.example.wellipet.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -23,26 +22,23 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 1) 手動註冊 listener
+        // 1) Manually register the message listener for auth data
         authListener = AuthMessageListener(this)
         Wearable.getMessageClient(this)
             .addListener(authListener)
-            .addOnSuccessListener { android.util.Log.d("WatchAuth","Listener registered") }
-            .addOnFailureListener { android.util.Log.e("WatchAuth","register failed", it) }
 
 
         setContent {
             WelliPetTheme {
                 val navController = rememberSwipeDismissableNavController()
                 val authVm: WatchAuthViewModel = viewModel()
-//                 根据是否拿到 token 决定起始页
+                // Choose start destination based on whether a UID has been received
                 val uid by authVm.uidFlow.collectAsState()
                 val start = if (uid != null) "home" else "auth"
-//                val start = "home"
 
                 SwipeDismissableNavHost(navController, startDestination = start) {
                     composable("auth") {
-                        // 登入前：显示等待同步
+                        // Before login: display waiting for phone sync
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -64,7 +60,7 @@ class MainActivity : ComponentActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
-        // 2) 在 Activity 销毁时注销 listener
+        // 2) Unregister the listener when the Activity is destroyed
         Wearable.getMessageClient(this)
             .removeListener(authListener)
     }

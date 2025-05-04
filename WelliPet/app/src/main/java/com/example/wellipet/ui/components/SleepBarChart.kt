@@ -28,7 +28,7 @@ fun SleepBarChart(
                 legend.isEnabled = false
                 setPinchZoom(false)
                 isDragEnabled = true
-                // x 軸設定：每個間距顯示對應日期
+                // X-axis configuration: show a label for each entry
                 xAxis.apply {
                     granularity = 1f
                     setLabelCount(data.size, true)
@@ -37,14 +37,14 @@ fun SleepBarChart(
             }
         },
         update = { chart ->
-            // 將 data 轉換成 BarEntry 集合, x 軸是 index, y 軸為睡眠時長 (秒轉換成小時)
+            // Convert data into BarEntry list, x-axis is index, y-axis is sleep duration (seconds to hours)
             val entries = data.mapIndexed { index, pair ->
                 BarEntry(index.toFloat(), pair.second.toFloat() / 3600f)
             }
-            // 建立 BarDataSet
+            // Create a BarDataSet
             val dataSet = BarDataSet(entries, "Sleep History").apply {
-                // 根據睡眠時數 (以小時計) 決定顏色：
-                // ≥7hr: 綠色, 5至7hr: 橘色, <5hr: 紅色
+                // Determine bar color based on sleep hours:
+                // ≥7hr: green; 5–7hr: orange; <5hr: red
                 val colors = data.map { pair ->
                     val hours = pair.second.toFloat() / 3600f
                     when {
@@ -53,10 +53,9 @@ fun SleepBarChart(
                         else -> androidx.compose.ui.graphics.Color(238, 54, 54, 255).toArgb()
                     }
                 }
-                // 使用不帶 context 的 setColors() 方法
                 setColors(*colors.toIntArray())
                 valueTextSize = 10f
-                // 格式化 Y 軸數值：以小時單位，例如 "7.5 hr"
+                // Format Y-axis values in hours, e.g.
                 valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
                         return String.format("%.1f hr", value)
@@ -67,7 +66,7 @@ fun SleepBarChart(
             chart.data = BarData(dataSet).apply {
                 barWidth = 0.9f
             }
-            // 設定 x 軸標籤，用資料中的日期字串來顯示
+            // Set X-axis labels to the date strings from the data
             chart.xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     val index = value.toInt()

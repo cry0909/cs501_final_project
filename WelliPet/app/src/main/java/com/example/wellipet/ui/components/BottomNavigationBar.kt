@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
@@ -28,10 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.wellipet.R
 import com.example.wellipet.navigation.Screen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
-    // 跟 TopBar 同樣的 Press Start 2P 字體設定
     val pressStart = GoogleFont("Press Start 2P")
     val provider = GoogleFont.Provider(
         providerAuthority = "com.google.android.gms.fonts",
@@ -42,7 +39,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         Font(googleFont = pressStart, fontProvider = provider, weight = FontWeight.Bold)
     )
 
-    // 漸層＋圓角＋陰影
+    // gradient + shadow + rounded corners
     Surface(
         modifier = Modifier
             .fillMaxWidth()

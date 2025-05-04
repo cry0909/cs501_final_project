@@ -52,7 +52,7 @@ fun WeatherCard(
     temp: Double,
     weatherList: List<WeatherInfo>
 ) {
-    // 半透明黑底、圓角、陰影
+    // Semi-transparent black background, rounded corners, and shadow
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
@@ -64,9 +64,9 @@ fun WeatherCard(
         Column(
             modifier = Modifier
                 .padding(12.dp)
-                .fillMaxWidth()   // 改成填滿寬度
+                .fillMaxWidth()
         ) {
-            // 標題列：城市 ＋ 溫度
+            // Header row: city name + temperature
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,11 +86,11 @@ fun WeatherCard(
 
             Spacer(Modifier.height(6.dp))
 
-            // 天氣項目列表
+            // Weather details list
             weatherList.forEach { weather ->
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()         // 讓這一行也填滿寬度
+                        .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -127,7 +127,7 @@ fun HomeScreen(
     navController: NavHostController,
     homeViewModel: HomeViewModel = viewModel(),
     storeViewModel: StoreViewModel = viewModel(),
-    authViewModel: AuthViewModel = viewModel(),    // 登出用
+    authViewModel: AuthViewModel = viewModel(),
 
 ) {
     val context = LocalContext.current
@@ -153,7 +153,7 @@ fun HomeScreen(
             .build()
     }
 
-    // 將 badge ID 轉回 drawable resource
+    // Convert badge IDs back to drawable resource IDs
     val badgeResList = remember(selectedBadges) {
         selectedBadges.mapNotNull { id ->
             val res = context.resources.getIdentifier(id, "drawable", context.packageName)
@@ -169,7 +169,7 @@ fun HomeScreen(
     val itemText = Color(0xFF6B3E1E)
 
     //AI Solution
-    // 1. 初始检查权限
+    // Request location permission for weather
     val permission = Manifest.permission.ACCESS_FINE_LOCATION
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -178,21 +178,21 @@ fun HomeScreen(
         )
     }
 
-    // 2. 用 launcher 请求权限
+    // Launcher for permission request
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         hasLocationPermission = granted
     }
 
-    // 3. 一进来就，如果还没权限就弹一次
+    // Request permission on first composition if not granted
     LaunchedEffect(Unit) {
         if (!hasLocationPermission) {
             launcher.launch(permission)
         }
     }
 
-    // 4. 只要拿到权限，就立刻调用 loadWeather()
+    // Load weather once permission is granted
     LaunchedEffect(hasLocationPermission) {
         if (hasLocationPermission) {
             homeViewModel.loadWeather()
@@ -243,11 +243,11 @@ fun HomeScreen(
                             onClick = {
                                 menuExpanded = false
                                 scope.launch {
-                                    // 1) 清除“记住我”
+                                    // 1) Clear "Remember me"
                                     context.setRememberMe(false)
-                                    // 2) Firebase 登出
+                                    // 2) Sign out from Firebase
                                     authViewModel.signOut()
-                                    // 3) 导航回 Login，并清空回退栈
+                                    // 3) Navigate back to Login and clear back stack
                                     navController.navigate(Screen.Login.route) {
                                         popUpTo(0) { inclusive = true }
                                     }
@@ -265,7 +265,7 @@ fun HomeScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // 背景
+            // Background image
             AsyncImage(
                 model = backgroundRes,
                 contentDescription = "Background",
@@ -274,7 +274,7 @@ fun HomeScreen(
             )
 
             if (!hasLocationPermission) {
-                // 权限未给出时
+                // Prompt if location permission is missing
                 Text(
                     "Turn on location permission to get weather!",
                     modifier = Modifier.align(Alignment.TopCenter).padding(16.dp),
@@ -282,7 +282,7 @@ fun HomeScreen(
                 )
             }
 
-            // 一旦有权限，再显示天气卡片
+            // Display weather card when data is available
             if (weather != null && hasLocationPermission) {
                 Box(
                     modifier = Modifier
@@ -298,7 +298,7 @@ fun HomeScreen(
                 }
             }
 
-            // 寵物展示
+            // Pet display
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -316,7 +316,7 @@ fun HomeScreen(
                 )
             }
 
-            // 已選徽章列
+            // Selected badges row at the bottom
             if (badgeResList.isNotEmpty()) {
                 Row(
                     modifier = Modifier
@@ -375,7 +375,6 @@ fun HomeScreen(
                     containerColor = Color(0xFFF8E0CB),
                     title = { Text("Common Questions") },
                     text = {
-                        // 限制高度到 300.dp，超过就滚动
                         Box(
                             Modifier
                                 .heightIn(max = 300.dp)

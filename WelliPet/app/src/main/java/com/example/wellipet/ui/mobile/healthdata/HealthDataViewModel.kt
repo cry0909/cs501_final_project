@@ -18,15 +18,15 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
     private val _currentSteps = MutableStateFlow(0L)
     val currentSensorSteps: StateFlow<Long> = _currentSteps
 
-    // 儲存睡眠資料（過去24小時內所有睡眠記錄的總時長，以秒計算）
+    // Stores total sleep (sum of all sleep sessions in the past 24 hours, in seconds)
     private val _currentSleep = MutableStateFlow(0L)
     val currentSleep: StateFlow<Long> = _currentSleep
 
-    // 儲存飲水資料（過去24小時內所有飲水記錄的水量總和，以毫升計算）
+    // Stores total hydration (sum of all hydration records in the past 24 hours, in mL)
     private val _currentHydration = MutableStateFlow(0L)
     val currentHydration: StateFlow<Long> = _currentHydration
 
-    // 歷史資料：使用 Pair<日期, 數值> 列表
+    // Historical data: list of Pair<date, value>
     private val _historicalSteps = MutableStateFlow<List<Pair<String, Long>>>(emptyList())
     val historicalSteps: StateFlow<List<Pair<String, Long>>> = _historicalSteps
 
@@ -37,7 +37,7 @@ class HealthDataViewModel(application: Application) : AndroidViewModel(applicati
     val historicalHydration: StateFlow<List<Pair<String, Long>>> = _historicalHydration
 
 
-    // 讀取 Health Connect 上的所有數據（步數、睡眠、飲水）
+    // Read all data from Health Connect (steps, sleep, hydration)
     fun readHealthData(rangeDays: Int = 7) {
         viewModelScope.launch {
             try {

@@ -16,7 +16,7 @@ data class BadgeDefinition(
 )
 
 val allBadgeDefinitions = listOf(
-    // Hydration 系列
+    // Hydration series
     BadgeDefinition(
         id = "hydration_novice",
         category = BadgeCategory.Hydration,
@@ -28,7 +28,7 @@ val allBadgeDefinitions = listOf(
         id = "hydration_expert",
         category = BadgeCategory.Hydration,
         unlock = { repo ->
-            // 連續 7 天每日 ≥ 2000 ml
+            // at least 2000 ml daily for 7 consecutive days
             val hist = repo.getHistoricalHydration(7)
             hist.size >= 7 && hist.all { (_, v) -> v >= 2_000L }
         },
@@ -56,7 +56,7 @@ val allBadgeDefinitions = listOf(
         lockedIconRes   = R.drawable.hydration_legend_locked
     ),
 
-    // Steps 系列
+    // Steps series
     BadgeDefinition(
         id = "step_beginner",
         category = BadgeCategory.Steps,
@@ -108,7 +108,7 @@ val allBadgeDefinitions = listOf(
         lockedIconRes   = R.drawable.step_legend_locked
     ),
 
-    // Sleep 系列
+    // Sleep series
     BadgeDefinition(
         id = "sleep_enthusiast",
         category = BadgeCategory.Sleep,
@@ -147,7 +147,7 @@ val allBadgeDefinitions = listOf(
         lockedIconRes   = R.drawable.sleep_legend_locked
     ),
 
-    // Combined 三項全能
+    // Combined triathlon badges
     BadgeDefinition(
         id = "daily_triathlete",
         category = BadgeCategory.Combined,

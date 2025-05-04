@@ -12,13 +12,13 @@ class HealthRepository(context: Context) {
     private var histHyd30:  List<Pair<String,Long>>? = null
     private var histSleep30: List<Pair<String,Long>>? = null
 
-    fun clearHistoryCache() {
-        // 1. 清掉仓库层的 30 天切片缓存
+    fun clearHistoryCache() { //AI reference, original issue: API quota exceeded
+        // 1. Clear the repository's 30-day slice cache
         histSteps30 = null
         histHyd30   = null
         histSleep30 = null
 
-        // 2. 同时清掉 HealthConnectSource 里的缓存
+        // 2. Also clear the cache inside HealthConnectSource
         healthConnectSource.clearHistoricalCache()
     }
 
@@ -42,7 +42,7 @@ class HealthRepository(context: Context) {
     suspend fun getStepsLast(hours: Long)     = healthConnectSource.readSteps(hours)
 
 
-    // 歷史資料函式
+    // Historical data functions
     suspend fun getHistoricalSteps(days: Int): List<Pair<String,Long>> {
         if (histSteps30 == null)
             histSteps30 = healthConnectSource.readHistoricalSteps(30)

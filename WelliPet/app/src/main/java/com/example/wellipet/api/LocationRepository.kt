@@ -1,7 +1,6 @@
 // File: com/example/wellipet/api/LocationRepository.kt
 package com.example.wellipet.api
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import com.google.android.gms.location.*
@@ -11,12 +10,12 @@ import kotlinx.coroutines.flow.callbackFlow
 class LocationRepository(private val context: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
-    // 持續訂閱位置更新
+    // Keep track of the last location
     @SuppressLint("MissingPermission")
     fun getLocationFlow() = callbackFlow<Pair<Double, Double>?> {
-        // 設定位置更新參數
+        // Set up the location request
         val locationRequest = LocationRequest.create().apply {
-            interval = 10000  // 每10秒更新一次
+            interval = 10000  // updates every 10 sec
             fastestInterval = 5000
             priority = Priority.PRIORITY_HIGH_ACCURACY
         }

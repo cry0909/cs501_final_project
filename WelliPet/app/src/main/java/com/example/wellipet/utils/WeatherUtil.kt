@@ -14,13 +14,13 @@ fun getWeatherIconRes(weatherDescription: String): Int {
         weatherDescription.contains("thunderstorm", ignoreCase = true) -> R.drawable.storm
         weatherDescription.contains("snow", ignoreCase = true) -> R.drawable.snow
         weatherDescription.contains("mist", ignoreCase = true) -> R.drawable.mist
-        // 可根据实际需要添加更多情况
+
         else -> R.drawable.scaclouds
     }
 }
 
 /**
- * 根据天气描述返回建议的运动提示文字
+ * Returns suggested activity tips based on the weather description.
  */
 fun getSuggestionText(weatherDescription: String): String {
     return when {

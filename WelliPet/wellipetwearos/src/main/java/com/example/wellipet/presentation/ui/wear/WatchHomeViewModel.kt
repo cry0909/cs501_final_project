@@ -13,7 +13,6 @@ class WatchHomeViewModel(app: Application) : AndroidViewModel(app) {
     val petStatus = repo.petStatusFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, "happy")
 
-    // 现在都是 String?
     val selectedPet = repo.selectedPetFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 

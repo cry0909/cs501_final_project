@@ -24,17 +24,17 @@ fun StepsLineChart(
         modifier = modifier,
         factory = {
             LineChart(context).apply {
-                // 關閉內建描述文字
+                // Disable the built-in description label
                 description.isEnabled = false
-                // 隱藏右側軸
+                // Hide the right-hand Y-axis
                 axisRight.isEnabled = false
-                // 啟用縮放、拖曳、手指放大
+                // Enable pinch zoom, scaling, and dragging
                 setPinchZoom(true)
                 setScaleEnabled(true)
                 isDragEnabled = true
-                // 預設無資料時的文字
+                // Default text when no data is available
                 setNoDataText("No steps data available.")
-                // x 軸設定（後續 update 區塊會設定 ValueFormatter）
+                // X-axis configuration
                 xAxis.apply {
                     granularity = 1f  // 每個間距 1
                     setLabelCount(data.size, true)
@@ -44,7 +44,7 @@ fun StepsLineChart(
             }
         },
         update = { chart ->
-            // 將 data 轉換成 MPAndroidChart 需要的 Entry 集合
+            // Convert data into MPAndroidChart Entry list
             val entries = data.mapIndexed { index, pair ->
                 Entry(index.toFloat(), pair.second.toFloat())
             }
@@ -59,12 +59,12 @@ fun StepsLineChart(
             }
             chart.data = LineData(dataSet)
 
-            // 設定 X 軸的 ValueFormatter，以顯示日期
+            // Set the X-axis ValueFormatter to display dates
             chart.xAxis.valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     val index = value.toInt()
                     return if (index in data.indices) {
-                        // 這裡假設 date 字串格式為 "yyyy-MM-dd"，你也可以進一步格式化
+                        // Assumes date string format "yyyy-MM-dd"
                         data[index].first
                     } else ""
                 }

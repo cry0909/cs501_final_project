@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1) 先创建通知渠道（Android O+）
+        // 1) Create the notification channel (Android O and above)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val chan = NotificationChannel(
                 CHANNEL_ID,
@@ -37,20 +37,12 @@ class MainActivity : ComponentActivity() {
                 ?.createNotificationChannel(chan)
         }
 
-        // 2) 提交周期性任务：15 分钟执行一次 HealthCheckWorker
+        // 2) Schedule periodic work: run HealthCheckWorker every 60 minutes
         val workRequest = PeriodicWorkRequestBuilder<HealthCheckWorker>(
-            /* repeatInterval = */ 15, TimeUnit.MINUTES
+            /* repeatInterval = */ 60, TimeUnit.MINUTES
         )
             .setInitialDelay(0, TimeUnit.MINUTES)
             .build()
-
-        WorkManager.getInstance(this)
-            .getWorkInfosForUniqueWorkLiveData("health_check")
-            .observe(this) { workInfos ->
-                workInfos.forEach { info ->
-                    Log.d("WorkManagerDebug", "Work ${info.id} state: ${info.state}")
-                }
-            }
 
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(

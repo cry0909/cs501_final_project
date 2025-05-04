@@ -47,7 +47,7 @@ fun LoginScreen(
 
     val context = LocalContext.current
 
-    // 1) 检查 Health Connect SDK 状态
+    // 1) Check Health Connect SDK status
     val providerPackage = "com.google.android.apps.healthdata"
     val sdkStatus = remember {
         HealthConnectClient.getSdkStatus(context, providerPackage)
@@ -55,13 +55,13 @@ fun LoginScreen(
     LaunchedEffect(sdkStatus) {
         when (sdkStatus) {
             HealthConnectClient.SDK_UNAVAILABLE -> {
-                // 未安装：跳到 Play 商店
+                // Not installed: open Play Store
                 context.startActivity(
                     Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$providerPackage"))
                 )
             }
             HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> {
-                // 需要更新 provider
+                // Provider needs update
                 context.startActivity(
                     Intent(Intent.ACTION_VIEW).apply {
                         setPackage("com.android.vending")
@@ -72,12 +72,12 @@ fun LoginScreen(
                 )
             }
             else -> {
-                // SDK_AVAILABLE 或其他，都可继续
+                // SDK_AVAILABLE or other: continue
             }
         }
     }
 
-    // 2) 准备 Health Connect 权限请求
+    // 2) Prepare Health Connect permission request
     val client = HealthConnectClient.getOrCreate(context)
     val REQUIRED_PERMISSIONS = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
@@ -88,20 +88,20 @@ fun LoginScreen(
         HealthPermission.getWritePermission(HydrationRecord::class)
     )
 
-    // 用来控制是否显示 “权限被拒绝” 对话框
+    // Controls whether to show a "permissions denied" dialog
     var showPermissionsDenied by remember { mutableStateOf(false) }
 
     val requestPermissionsLauncher = rememberLauncherForActivityResult(
         contract = PermissionController.createRequestPermissionResultContract()
     ) { granted ->
-        // 授权结果回调
+        // Callback for permission results
         if (!granted.containsAll(REQUIRED_PERMISSIONS)) {
-            // 用户拒绝了至少一个必须权限，弹框提示
+            // At least one required permission was denied
             showPermissionsDenied = true
         }
     }
 
-    // 3) 如果还没授权，就发起一次请求
+    // 3) If not yet granted, launch the permission request
     LaunchedEffect(sdkStatus) {
         if (sdkStatus == HealthConnectClient.SDK_AVAILABLE) {
             val granted = client.permissionController.getGrantedPermissions()
@@ -113,16 +113,16 @@ fun LoginScreen(
 
 
 
-    // 利用 LaunchedEffect 收集一次性導航事件
+    // Use LaunchedEffect to collect one‑off navigation events
     LaunchedEffect(Unit) {
         authViewModel.navigationEvent.collect {
-            // 1) 存 RememberMe
+            // 1) Save RememberMe preference
             context.setRememberMe(rememberMe)
 
-            // 2) 拿到 UID
+            // 2) Get the current user's UID
             val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@collect
 
-            // 3) 发送给所有已配对手表节点
+            // 3) Send UID to all paired watch nodes
             Wearable.getNodeClient(context)
                 .connectedNodes
                 .addOnSuccessListener { nodes ->
@@ -138,7 +138,7 @@ fun LoginScreen(
                     }
                 }
 
-            // 4) 真正导航
+            // 4) Perform actual navigation
             onLoginSuccess()
         }
     }
@@ -188,9 +188,9 @@ fun LoginScreen(
                     checked = rememberMe,
                     onCheckedChange = { rememberMe = it },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0xFF4F2603),       // 選中時方塊和勾勾的顏色 (如果沒指定 checkmarkColor)
-                        uncheckedColor = Color(0xFF4F2603),   // 未選中時邊框的顏色
-                        checkmarkColor = Color(0xFFFFF3E0)            // 勾勾的顏色 (覆蓋 checkedColor 對勾勾的影響)
+                        checkedColor = Color(0xFF4F2603),
+                        uncheckedColor = Color(0xFF4F2603),
+                        checkmarkColor = Color(0xFFFFF3E0)
                     )
                 )
                 Text("Remember me")
@@ -226,7 +226,7 @@ fun LoginScreen(
                     Spacer(Modifier.height(16.dp))
                     Text((authState as AuthState.Error).message, color = MaterialTheme.colorScheme.error)
                 }
-                else -> {} // Idle 狀態不作處理
+                else -> {} // Idle state: no action
             }
         }
     }

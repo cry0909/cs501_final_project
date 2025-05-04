@@ -26,7 +26,7 @@ class AuthViewModel : ViewModel() {
     private val firestore    = FirebaseFirestore.getInstance()
     val authState: StateFlow<AuthState> = _authState
 
-    // SharedFlow 用於傳遞一次性導航事件
+    // SharedFlow used to emit one‑off navigation events
     private val _navigationEvent = MutableSharedFlow<Unit>(replay = 0)
     val navigationEvent = _navigationEvent.asSharedFlow()
 
@@ -49,7 +49,7 @@ class AuthViewModel : ViewModel() {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 val user = result.user!!
-                // 1) 初始化 Firestore 裡的 users/{uid} 文件
+                // 1) Initialize the Firestore document at users/{uid}
                 firestore.collection("users")
                     .document(user.uid)
                     .set(
@@ -62,7 +62,7 @@ class AuthViewModel : ViewModel() {
                         )
                     )
 
-                // 2) 繼續後面的流程
+                // 2) Continue the flow
                 _authState.value = AuthState.Success(user)
                 viewModelScope.launch { _navigationEvent.emit(Unit) }
             }

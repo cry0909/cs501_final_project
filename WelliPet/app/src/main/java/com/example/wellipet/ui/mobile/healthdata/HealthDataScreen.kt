@@ -46,7 +46,6 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
     val errorMessage by vm.errorMessage.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 每次 errorMessage 变更都会弹一次
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
             snackbarHostState.showSnackbar(it)
@@ -54,23 +53,22 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
         }
     }
 
-    // 範圍選擇
+    // Range selection
     var selectedDays by remember { mutableStateOf(7) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val daysOptions = listOf(7, 14, 30)
     var expandRange by remember { mutableStateOf(false) }
-    // 在 resume 时、或天数变更时自动刷新
+    // Automatically refresh when resumed or when days selection changes
     LaunchedEffect(lifecycleOwner, selectedDays) {
-        // 监听生命周期
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            // 1) 先刷新所有 Health 数据（包含步数/睡眠/饮水）
+            // 1. First refresh all Health data (steps, sleep, hydration)
             vm.readHealthData(selectedDays)
-            // 2) 紧接着根据最新数据立即刷新 pet 状态
+            // 2. Then immediately refresh pet status with the latest data
             homeViewModel.refreshPetStatusNow()
         }
     }
 
-    // 手動輸入水量
+    // Hydration input
     var inputHyd by remember { mutableStateOf("") }
 
     Scaffold(
@@ -92,7 +90,7 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 1. 日期範圍
+            // 1. Date range
             Card(
                 colors    = cardColors(containerColor = Color(0xFFF8E5C5)),
                 elevation = cardElevation(defaultElevation = 4.dp),
@@ -134,7 +132,7 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                 }
             }
 
-            // 2. 步數
+            // 2. Steps
             Card(
                 colors    = cardColors(containerColor = Color(0xFFF0FCE7)),
                 elevation = cardElevation(defaultElevation = 4.dp),
@@ -152,7 +150,7 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                 }
             }
 
-            // 3. 睡眠
+            // 3. Sleep
             Card(
                 colors    = cardColors(containerColor = Color(0xFFFDEFE3)),
                 elevation = cardElevation(defaultElevation = 4.dp),
@@ -170,7 +168,7 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                 }
             }
 
-            // 4. 飲水
+            // 4. Hydration
             Card(
                 colors    = cardColors(containerColor = Color(0xFFE7FBFF)),
                 elevation = cardElevation(defaultElevation = 4.dp),
@@ -200,12 +198,12 @@ fun HealthDataScreen(onBackClick: () -> Unit ) {
                         onClick = {
                             inputHyd.toLongOrNull()?.let { amount ->
                                 scope.launch {
-                                    // 1) 先写入喝水
+                                    // 1. Add hydration record
                                     val ok = vm.repository.addHydration(amount)
                                     if (ok) {
-                                        // 2) 写完再刷新 HealthDataViewModel 中的图表和数值
+                                        // 2. Refresh charts and values in HealthDataViewModel
                                         vm.readHealthData(selectedDays)
-                                        // 3) 再立刻计算并写回 petStatus
+                                        // 3. Immediately compute and update pet status
                                         homeViewModel.refreshPetStatusNow()
                                     }
                                 }

@@ -33,11 +33,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.petStatusFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, "happy")
 
-    /** 把计算状态的逻辑抽成一个 suspend 函数 */
+    /** Extracts the logic for computing pet status into a suspend function */
     private suspend fun computeAndSavePetStatus() {
-        // 过去 1h 的喝水量
+        // Amount of water consumed in the past hour
         val water1h = runCatching { healthRepo.getHydrationLast(hours = 1) }.getOrDefault(0L)
-        // 过去 2h 的步数
+        // Step count in the past two hours
         val steps2h = runCatching { healthRepo.getStepsLast(hours = 2)    }.getOrDefault(0L)
 
         val newStatus = when {
@@ -48,14 +48,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         userRepo.savePetStatus(newStatus)
     }
 
-    init { viewModelScope.launch { computeAndSavePetStatus() }} //  启动时立刻刷新一次
+    init { viewModelScope.launch { computeAndSavePetStatus() }} // Refresh once immediately on initialization
 
-    /** 对外暴露，供喝水／走路后立即调用 */
+    /** Public function to trigger an immediate pet status update after hydration or steps changes */
     fun refreshPetStatusNow() {
         viewModelScope.launch { computeAndSavePetStatus() }
     }
 
-    /** 只有在确认为有位置权限后才调用这个方法，开始订阅位置并拉天气(AI solution) */
+    /**
+     * Should be called only when location permission is granted;
+     * subscribes to location updates and fetches weather data (AI solution)
+     */
     fun loadWeather() {
         viewModelScope.launch {
             locationRepository.getLocationFlow().collect { coords ->
@@ -64,7 +67,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         val (lat, lon) = coords
                         weatherService.getCurrentWeatherByCoordinates(lat, lon, apiKey)
                     } else {
-                        weatherService.getCurrentWeatherByCity("Beijing", apiKey)
+                        weatherService.getCurrentWeatherByCity("Boston", apiKey)
                     }
                 } catch (e: Exception) {
                     null
