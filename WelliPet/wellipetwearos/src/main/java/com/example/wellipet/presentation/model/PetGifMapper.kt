@@ -16,9 +16,9 @@ object PetGifMapper {
             "sleepy"  to R.drawable.cat_sleep
         ),
         "rabbit" to mapOf(
-            "happy"   to R.drawable.dog_happy,
-            "thirsty" to R.drawable.dog_thirsty,
-            "sleepy"  to R.drawable.dog_sleep
+            "happy"   to R.drawable.rabbit_happy,
+            "thirsty" to R.drawable.rabbit_thirsty,
+            "sleepy"  to R.drawable.rabbit_sleep
         )
     )
 
