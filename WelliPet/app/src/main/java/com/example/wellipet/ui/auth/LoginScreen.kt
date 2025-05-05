@@ -13,7 +13,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wellipet.data.AuthPreferences.setRememberMe
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.ui.graphics.Brush
@@ -127,12 +126,6 @@ fun LoginScreen(
                     nodes.forEach { node ->
                         Wearable.getMessageClient(context)
                             .sendMessage(node.id, "/auth-uid", uid.toByteArray())
-                            .addOnSuccessListener {
-                                Log.d("Phone→Watch", "➡️ uid sent to ${node.displayName}")
-                            }
-                            .addOnFailureListener {
-                                Log.e("Phone→Watch", "sendMessage failed", it)
-                            }
                     }
                 }
 
