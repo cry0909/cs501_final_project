@@ -3,7 +3,6 @@ package com.example.wellipet.data.source
 
 import android.content.Context
 import android.health.connect.HealthConnectException
-import android.util.Log
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SleepSessionRecord
@@ -23,7 +22,7 @@ import java.time.format.DateTimeFormatter
 
 class HealthConnectSource(context: Context) {
     private val healthConnectClient = HealthConnectClient.getOrCreate(context)
-    // 缓存上次读到的值
+    // Cache the last retrieved values
     private var lastStepsCache: Long = 0L
     private var lastSleepCache: Long = 0L
     private var lastHydrationCache: Long = 0L
@@ -32,7 +31,7 @@ class HealthConnectSource(context: Context) {
     private val lastHistoricalSleepCache = mutableMapOf<Int, List<Pair<String, Long>>>()
     private val lastHistoricalHydrationCache = mutableMapOf<Int, List<Pair<String, Long>>>()
 
-    /** 清掉历史查询的内部缓存，force next call 真正去 Health Connect API */
+    /** Clear historical internal cache so the next call will truly query Health Connect API */
     fun clearHistoricalCache() {
         lastHistoricalStepsCache.clear()
         lastHistoricalSleepCache.clear()
@@ -52,8 +51,6 @@ class HealthConnectSource(context: Context) {
             lastStepsCache = total
             total
         } catch (e: HealthConnectException) {
-            // 配额超限或其他 Health Connect 错误
-            Log.w("HealthConnect", "readSteps failed: ${e.errorCode}", e)
             lastStepsCache
         } catch (e: Exception) {
             e.printStackTrace()
@@ -70,7 +67,7 @@ class HealthConnectSource(context: Context) {
                 timeRangeFilter = TimeRangeFilter.between(startTime, now)
             )
             val response = healthConnectClient.readRecords(request)
-            // 累加所有睡眠記錄的時長（秒）
+            // Sum the duration (in seconds) of all sleep records
             var totalSleepSeconds = 0L
             response.records.forEach { sleepRecord ->
                 totalSleepSeconds += Duration.between(
@@ -78,15 +75,15 @@ class HealthConnectSource(context: Context) {
                     sleepRecord.endTime
                 ).seconds.coerceAtLeast(0L)
             }
-            // 成功拿到新的值，就更新快取
+            // Update cache only if successfully retrieved new values
             lastSleepCache = totalSleepSeconds
             totalSleepSeconds
         } catch (e: HealthConnectException) {
-            // quota 超限或 Health Connect 特有錯誤
+            // quota exceeded or Health Connect-specific errors
             e.printStackTrace()
             lastSleepCache
         } catch (e: Exception) {
-            // 其它任何 Exception
+            // Any other exception
             e.printStackTrace()
             lastSleepCache
         }
@@ -94,7 +91,7 @@ class HealthConnectSource(context: Context) {
 
 
 
-    // 讀取飲水資料：過去 24 小時內所有 HydrationRecord 的水量總和（假設以毫升計算）
+    // Read hydration data: Sum the volume of all HydrationRecords in the past 24 hours (assumed in milliliters)
     suspend fun readHydration(hours: Long = 24): Long = withContext(Dispatchers.IO) {
         try {
             val now = Instant.now()
@@ -108,7 +105,6 @@ class HealthConnectSource(context: Context) {
             lastHydrationCache = total
             total
         } catch (e: HealthConnectException) {
-            Log.w("HealthConnect", "readHydration failed: ${e.errorCode}", e)
             lastHydrationCache
         } catch (e: Exception) {
             e.printStackTrace()
@@ -136,15 +132,15 @@ class HealthConnectSource(context: Context) {
 
 
     /**
-     * 一次拉過去 [days] 天的所有 StepsRecord，然後按 LocalDate group & sum，回傳
+     * Retrieve all StepsRecords from the past [days] days,
+     * group and sum them by LocalDate, and return the result.
      */
     suspend fun readHistoricalSteps(days: Int): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
-        // 如果已經快取過，就直接回
+        // If already cached, return directly
         lastHistoricalStepsCache[days]?.let { return@withContext it }
 
         val zone = ZoneId.systemDefault()
         val today = LocalDate.now(zone)
-        // 從 days 天前的 00:00 拉到現在
         val startInstant = today.minusDays(days.toLong()).atStartOfDay(zone).toInstant()
         val endInstant = Instant.now()
 
@@ -155,11 +151,11 @@ class HealthConnectSource(context: Context) {
                     timeRangeFilter = TimeRangeFilter.between(startInstant, endInstant)
                 )
             )
-            // group by 當天
+            // Group by day
             val grouped: Map<LocalDate, List<StepsRecord>> = response.records.groupBy {
                 it.startTime.atZone(zone).toLocalDate()
             }
-            // 建立結果列表，空的補 0
+            // Build result list, fill missing days with 0
             val formatter = DateTimeFormatter.ISO_LOCAL_DATE
             val list = (0 until days).map { i ->
                 val date = today.minusDays(i.toLong())
@@ -170,7 +166,6 @@ class HealthConnectSource(context: Context) {
             lastHistoricalStepsCache[days] = list
             list
         } catch (e: HealthConnectException) {
-            Log.w("HealthConnect", "readHistoricalSteps failed: ${e.errorCode}", e)
             lastHistoricalStepsCache[days] ?: emptyList()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -179,7 +174,8 @@ class HealthConnectSource(context: Context) {
     }
 
     /**
-     * 一次拉過去 [days] 天的所有 SleepSessionRecord，group by 日期後 sum duration
+     * Retrieve all SleepSessionRecords from the past [days] days,
+     * group by date, and sum the duration.
      */
     suspend fun readHistoricalSleep(days: Int): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
         lastHistoricalSleepCache[days]?.let { return@withContext it }
@@ -213,7 +209,6 @@ class HealthConnectSource(context: Context) {
             lastHistoricalSleepCache[days] = list
             list
         } catch (e: HealthConnectException) {
-            Log.w("HealthConnect", "readHistoricalSleep failed: ${e.errorCode}", e)
             lastHistoricalSleepCache[days] ?: emptyList()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -223,7 +218,8 @@ class HealthConnectSource(context: Context) {
 
 
     /**
-     * 一次拉過去 [days] 天的所有 HydrationRecord，group by 日期後 sum volume
+     * Retrieve all HydrationRecords from the past [days] days,
+     * group by date, and sum the volume.
      */
     suspend fun readHistoricalHydration(days: Int): List<Pair<String, Long>> = withContext(Dispatchers.IO) {
         lastHistoricalHydrationCache[days]?.let { return@withContext it }
@@ -255,7 +251,6 @@ class HealthConnectSource(context: Context) {
             lastHistoricalHydrationCache[days] = list
             list
         } catch (e: HealthConnectException) {
-            Log.w("HealthConnect", "readHistoricalHydration failed: ${e.errorCode}", e)
             lastHistoricalHydrationCache[days] ?: emptyList()
         } catch (e: Exception) {
             e.printStackTrace()
