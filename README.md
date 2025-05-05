@@ -78,15 +78,15 @@ A: Badges are achievements you unlock by hitting daily or multi‑day goals in h
 
 ## 📸 Screenshots / Wireframes
 
-![login](./Wellipet_Screenshot/wp0.png)
-![home](./Wellipet_Screenshot/wp6.png)
-![home 1](./Wellipet_Screenshot/wp3.png)
-![home 2](./Wellipet_Screenshot/wp2.png)
-![home 3](./Wellipet_Screenshot/wp1.png)
-![store](./Wellipet_Screenshot/wp4.png)
-![health data](./Wellipet_Screenshot/wp5.png)
-![notification](./Wellipet_Screenshot/noti.png)
-![notification](./Wellipet_Screenshot/noti1.png)
+![login](./WelliPet_Screenshot/wp0.png)
+![home](./WelliPet_Screenshot/wp6.png)
+![home 1](./WelliPet_Screenshot/wp3.png)
+![home 2](./WelliPet_Screenshot/wp2.png)
+![home 3](./WelliPet_Screenshot/wp1.png)
+![store](./WelliPet_Screenshot/wp4.png)
+![health data](./WelliPet_Screenshot/wp5.png)
+![notification](./WelliPet_Screenshot/noti.png)
+![notification](./WelliPet_Screenshot/noti1.png)
 
 ---
 
