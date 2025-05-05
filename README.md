@@ -80,6 +80,7 @@ A: Badges are achievements you unlock by hitting daily or multi‑day goals in h
 
 ![login](./WelliPet_Screenshot/wp0.png)
 ![home](./WelliPet_Screenshot/wp6.png)
+![home](./WelliPet_Screenshot/wp7.png)
 ![home 1](./WelliPet_Screenshot/wp3.png)
 ![home 2](./WelliPet_Screenshot/wp2.png)
 ![home 3](./WelliPet_Screenshot/wp1.png)
